@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반품정책 체커 — 쇼핑몰 환불 정책 점검</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+.header { text-align: center; padding: 40px 0 30px; }
+.header h1 { font-size: 2em; color: #1a1a1a; margin-bottom: 10px; }
+.header p { color: #666; font-size: 1.1em; }
+.card { background: #fff; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card h2 { font-size: 1.3em; margin-bottom: 15px; color: #1a1a1a; }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+.input-group input, .input-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; font-family: inherit; }
+.input-group textarea { min-height: 120px; resize: vertical; }
+.btn { display: inline-block; padding: 14px 32px; background: #4f46e5; color: #fff; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn:hover { background: #4338ca; }
+.btn:disabled { background: #9ca3af; cursor: not-allowed; }
+.result { display: none; }
+.result.show { display: block; }
+.alert { padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+.alert-danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+.alert-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+.violation { background: #fef2f2; border-left: 4px solid #ef4444; padding: 16px; margin-bottom: 12px; border-radius: 0 8px 8px 0; }
+.violation h4 { color: #991b1b; margin-bottom: 8px; }
+.violation .original { background: #fff; padding: 8px 12px; border-radius: 4px; margin: 8px 0; font-style: italic; color: #666; }
+.violation .suggestion { background: #f0fdf4; padding: 8px 12px; border-radius: 4px; margin: 8px 0; color: #166534; }
+.violation .law { font-size: 0.9em; color: #666; margin-top: 8px; }
+.score { text-align: center; padding: 30px; }
+.score-circle { width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 2.5em; font-weight: 700; }
+.score-good { background: #f0fdf4; color: #166534; border: 4px solid #22c55e; }
+.score-bad { background: #fef2f2; color: #991b1b; border: 4px solid #ef4444; }
+.score-medium { background: #fffbeb; color: #92400e; border: 4px solid #f59e0b; }
+.loading { text-align: center; padding: 40px; color: #666; }
+.spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.footer { text-align: center; padding: 30px; color: #999; font-size: 0.9em; }
+@media (max-width: 600px) { .container { padding: 15px; } .card { padding: 20px; } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>반품정책 체커</h1>
+<p>쇼핑몰 환불 정책 문구를 전자상거래법 제17조 기준으로 점검합니다</p>
+</div>
+
+<div class="card">
+<h2>정책 문구 입력</h2>
+<div class="input-group">
+<label for="urlInput">쇼핑몰 URL (선택)</label>
+<input type="url" id="urlInput" placeholder="https://your-shop.com/policy">
+</div>
+<div class="input-group">
+<label for="policyText">정책 문구 (직접 입력)</label>
+<textarea id="policyText" placeholder="반품 및 환불 정책을 여기에 붙여넣으세요..."></textarea>
+</div>
+<button class="btn" id="checkBtn" onclick="checkPolicy()">정책 점검하기</button>
+</div>
+
+<div class="card result" id="resultCard">
+<h2>점검 결과</h2>
+<div id="resultContent"></div>
+</div>
+
+<div class="footer">
+<p>반품정책 체커 v1.0 — 전자상거래법 제17조 기준</p>
+<p>본 도구는 법적 자문이 아닙니다. 정확한 법적 판단은 전문가와 상담하세요.</p>
+</div>
+</div>
+
+<script>
+const LAW_17 = {
+  title: "전자상거래법 제17조 (청약철회의 제한)",
+  content: "소비자가 재화 등을 공급받은 날부터 7일 이내에 청약철회 가능. 다만, 재화 등의 내용이 표시·광고 내용과 다르거나 계약내용과 다르게 이행된 경우에는 3개월 이내, 그 사실을 안 날 또는 알 수 있었던 날부터 30일 이내에 청약철회 가능."
+};
+
+const VIOLATION_PATTERNS = [
+  {
+    pattern: /(\d+)일\s*이내/,
+    type: "기한 미달",
+    message: "법정 기한(7일)보다 짧은 기한 설정",
+    law: LAW_17.content,
+    suggestion: "7일 이내로 수정하세요. 단, 재화 등의 내용이 표시·광고 내용과 다른 경우 3개월 이내, 그 사실을 안 날부터 30일 이내로 명시하세요."
+  },
+  {
+    pattern: /환불\s*불가/,
+    type: "환불 거부",
+    message: "환불 불가 조항은 위법",
+    law: LAW_17.content,
+    suggestion: "환불 불가 조항을 제거하세요. 소비자는 법정 기한 내 청약철회권을 가집니다."
+  },
+  {
+    pattern: /위약금\s*(\d+)%/,
+    type: "위약금 과다",
+    message: "위약금 조항은 소비자에게 불리하게 적용될 수 있음",
+    law: "전자상거래법 제17조: 청약철회 시 위약금 청구는 원칙적으로 불가",
+    suggestion: "위약금 조항을 제거하거나, 소비자에게 불리하지 않은 범위로 수정하세요."
+  },
+  {
+    pattern: /충전금\s*강제/,
+    type: "충전금 강제",
+    message: "충전금 강제는 공정위 제재 대상",
+    law: "전자상거래법 제17조: 소비자의 의사에 반한 강제 행위 금지",
+    suggestion: "충전금 강제 조항을 제거하세요."
+  },
+  {
+    pattern: /24시간/,
+    type: "기한 미달",
+    message: "24시간 기한은 법정 기한(7일)보다 현저히 짧음",
+    law: LAW_17.content,
+    suggestion: "7일 이내로 수정하세요."
+  },
+  {
+    pattern: /3일\s*이내/,
+    type: "기한 미달",
+    message: "3일 기한은 법정 기한(7일)보다 짧음",
+    law: LAW_17.content,
+    suggestion: "7일 이내로 수정하세요."
+  },
+  {
+    pattern: /5일\s*이내/,
+    type: "기한 미달",
+    message: "5일 기한은 법정 기한(7일)보다 짧음",
+    law: LAW_17.content,
+    suggestion: "7일 이내로 수정하세요."
+  }
+];
+
+function checkPolicy() {
+  const text = document.getElementById('policyText').value.trim();
+  const btn = document.getElementById('checkBtn');
+  const resultCard = document.getElementById('resultCard');
+  const resultContent = document.getElementById('resultContent');
+
+  if (!text) {
+    alert('정책 문구를 입력해주세요.');
+    return;
+  }
+
+  btn.disabled = true;
+  resultCard.classList.add('show');
+  resultContent.innerHTML = '<div class="loading"><div class="spinner"></div><p>분석 중...</p></div>';
+
+  setTimeout(() => {
+    const violations = [];
+    let score = 100;
+
+    VIOLATION_PATTERNS.forEach(v => {
+      const match = text.match(v.pattern);
+      if (match) {
+        violations.push({
+          ...v,
+          matched: match[0]
+        });
+        score -= 25;
+      }
+    });
+
+    score = Math.max(0, score);
+
+    let html = '';
+    if (violations.length === 0) {
+      html += '<div class="alert alert-success"><strong>✓ 위반 소지 없음</strong><p>입력하신 정책 문구는 전자상거래법 제17조 기준을 충족합니다.</p></div>';
+    } else {
+      html += '<div class="alert alert-danger"><strong>⚠ 위반 소지 ' + violations.length + '건 발견</strong><p>아래 문구는 전자상거래법 제17조에 위반될 수 있습니다.</p></div>';
+      violations.forEach((v, i) => {
+        html += '<div class="violation">';
+        html += '<h4>' + (i+1) + '. ' + v.type + '</h4>';
+        html += '<div class="original">원문: "' + v.matched + '"</div>';
+        html += '<p><strong>문제:</strong> ' + v.message + '</p>';
+        html += '<div class="suggestion"><strong>수정 제안:</strong> ' + v.suggestion + '</div>';
+        html += '<div class="law"><strong>법적 근거:</strong> ' + v.law + '</div>';
+        html += '</div>';
+      });
+    }
+
+    html += '<div class="score">';
+    if (score >= 80) {
+      html += '<div class="score-circle score-good">' + score + '</div>';
+      html += '<p><strong>적합</strong> — 법정 기준 충족</p>';
+    } else if (score >= 50) {
+      html += '<div class="score-circle score-medium">' + score + '</div>';
+      html += '<p><strong>주의</strong> — 일부 수정 필요</p>';
+    } else {
+      html += '<div class="score-circle score-bad">' + score + '</div>';
+      html += '<p><strong>위험</strong> — 즉시 수정 필요</p>';
+    }
+    html += '</div>';
+
+    resultContent.innerHTML = html;
+    btn.disabled = false;
+  }, 1500);
+}
+</script>
+</body>
+</html>

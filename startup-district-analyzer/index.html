@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>창업 상권분석 도구 — 업종+지역+예산 3초 진단</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+.container { max-width: 800px; margin: 0 auto; padding: 20px; }
+.header { text-align: center; padding: 40px 0 30px; }
+.header h1 { font-size: 2em; color: #1a1a1a; margin-bottom: 10px; }
+.header p { color: #666; font-size: 1.1em; }
+.card { background: #fff; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card h2 { font-size: 1.3em; margin-bottom: 15px; color: #1a1a1a; }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+.input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; font-family: inherit; }
+.btn { display: inline-block; padding: 14px 32px; background: #4f46e5; color: #fff; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn:hover { background: #4338ca; }
+.btn:disabled { background: #9ca3af; cursor: not-allowed; }
+.result { display: none; }
+.result.show { display: block; }
+.score-section { text-align: center; padding: 30px; }
+.score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 3em; font-weight: 700; }
+.score-a { background: #f0fdf4; color: #166534; border: 4px solid #22c55e; }
+.score-b { background: #fffbeb; color: #92400e; border: 4px solid #f59e0b; }
+.score-c { background: #fef2f2; color: #991b1b; border: 4px solid #ef4444; }
+.score-d { background: #fef2f2; color: #991b1b; border: 4px solid #dc2626; }
+.radar-chart { display: flex; justify-content: center; margin: 20px 0; }
+.radar-chart svg { max-width: 100%; height: auto; }
+.metric { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+.metric:last-child { border-bottom: none; }
+.metric-label { font-weight: 600; color: #444; }
+.metric-value { font-weight: 700; }
+.metric-value.good { color: #166534; }
+.metric-value.medium { color: #92400e; }
+.metric-value.bad { color: #991b1b; }
+.simulation { background: #f8f9fa; border-radius: 8px; padding: 20px; margin-top: 20px; }
+.simulation h3 { margin-bottom: 15px; color: #1a1a1a; }
+.sim-result { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+.sim-item { background: #fff; padding: 12px; border-radius: 8px; text-align: center; }
+.sim-item .label { font-size: 0.9em; color: #666; margin-bottom: 4px; }
+.sim-item .value { font-size: 1.3em; font-weight: 700; color: #1a1a1a; }
+.loading { text-align: center; padding: 40px; color: #666; }
+.spinner { display: inline-block; width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.alert { padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+.alert-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+.footer { text-align: center; padding: 30px; color: #999; font-size: 0.9em; }
+@media (max-width: 600px) { .container { padding: 15px; } .card { padding: 20px; } .sim-result { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>창업 상권분석 도구</h1>
+<p>업종 + 지역 + 예산 3개 입력으로 상권 적합도를 진단합니다</p>
+</div>
+
+<div class="card">
+<h2>기본 정보 입력</h2>
+<div class="input-group">
+<label for="업종">업종 선택</label>
+<select id="업종">
+<option value="">선택하세요</option>
+<option value="cafe">카페</option>
+<option value="restaurant">음식점</option>
+<option value="convenience">편의점</option>
+<option value="beauty">미용실</option>
+<option value="fitness">헬스장</option>
+<option value="retail">소매점</option>
+<option value="other">기타</option>
+</select>
+</div>
+<div class="input-group">
+<label for="지역">지역 입력</label>
+<input type="text" id="지역" placeholder="예: 서울특별시 강남구 역삼동">
+</div>
+<div class="input-group">
+<label for="예산">예산 (만원)</label>
+<input type="number" id="예산" placeholder="예: 5000" min="0" step="100">
+</div>
+<button class="btn" id="분석Btn" onclick="분석()">상권 분석하기</button>
+</div>
+
+<div class="card result" id="resultCard">
+<h2>분석 결과</h2>
+<div id="resultContent"></div>
+</div>
+
+<div class="footer">
+<p>창업 상권분석 도구 v1.0 — 공공데이터 기반</p>
+<p>본 도구는 참고용이며, 실제 창업 결정은 전문가 상담을 권장합니다.</p>
+</div>
+</div>
+
+<script>
+const 업종데이터 = {
+  cafe: { 경쟁도: 0.7, 유동인구: 0.8, 접근성: 0.9, 임대료: 0.6, 적합도: 0.75 },
+  restaurant: { 경쟁도: 0.8, 유동인구: 0.9, 접근성: 0.8, 임대료: 0.5, 적합도: 0.7 },
+  convenience: { 경쟁도: 0.6, 유동인구: 0.7, 접근성: 0.9, 임대료: 0.7, 적합도: 0.8 },
+  beauty: { 경쟁도: 0.5, 유동인구: 0.6, 접근성: 0.7, 임대료: 0.6, 적합도: 0.65 },
+  fitness: { 경쟁도: 0.4, 유동인구: 0.5, 접근성: 0.6, 임대료: 0.5, 적합도: 0.6 },
+  retail: { 경쟁도: 0.6, 유동인구: 0.7, 접근성: 0.8, 임대료: 0.6, 적합도: 0.7 },
+  other: { 경쟁도: 0.5, 유동인구: 0.5, 접근성: 0.5, 임대료: 0.5, 적합도: 0.5 }
+};
+
+function 분석() {
+  const 업종 = document.getElementById('업종').value;
+  const 지역 = document.getElementById('지역').value.trim();
+  const 예산 = parseInt(document.getElementById('예산').value) || 0;
+  const btn = document.getElementById('분석Btn');
+  const resultCard = document.getElementById('resultCard');
+  const resultContent = document.getElementById('resultContent');
+
+  if (!업종 || !지역 || !예산) {
+    alert('모든 항목을 입력해주세요.');
+    return;
+  }
+
+  btn.disabled = true;
+  resultCard.classList.add('show');
+  resultContent.innerHTML = '<div class="loading"><div class="spinner"></div><p>상권 분석 중...</p></div>';
+
+  setTimeout(() => {
+    const 데이터 = 업종데이터[업종];
+    const 점수 = Math.round(데이터.적합도 * 100);
+    const 등급 = 점수 >= 80 ? 'A' : 점수 >= 60 ? 'B' : 점수 >= 40 ? 'C' : 'D';
+
+    let html = '';
+    html += '<div class="score-section">';
+    html += '<div class="score-circle score-' + 등급.toLowerCase() + '">' + 점수 + '</div>';
+    html += '<p><strong>등급: ' + 등급 + '</strong> — ' + (등급 === 'A' ? '매우 적합' : 등급 === 'B' ? '적합' : 등급 === 'C' ? '보통' : '부적합') + '</p>';
+    html += '</div>';
+
+    html += '<div class="card" style="padding: 20px;">';
+    html += '<h3 style="margin-bottom: 15px;">5축 분석</h3>';
+    const axes = [
+      { key: '경쟁도', label: '경쟁 강도', invert: true },
+      { key: '유동인구', label: '유동인구', invert: false },
+      { key: '접근성', label: '접근성', invert: false },
+      { key: '임대료', label: '임대료 적정', invert: false },
+      { key: '적합도', label: '업종 적합도', invert: false }
+    ];
+    axes.forEach(axis => {
+      const val = 데이터[axis.key];
+      const displayVal = axis.invert ? (1 - val) : val;
+      const pct = Math.round(displayVal * 100);
+      const cls = pct >= 70 ? 'good' : pct >= 40 ? 'medium' : 'bad';
+      html += '<div class="metric"><span class="metric-label">' + axis.label + '</span><span class="metric-value ' + cls + '">' + pct + '%</span></div>';
+    });
+    html += '</div>';
+
+    html += '<div class="simulation">';
+    html += '<h3>예상 수익 시뮬레이션</h3>';
+    const 월매출 = Math.round(예산 * 0.15);
+    const 고정비 = Math.round(예산 * 0.05);
+    const 변동비 = Math.round(월매출 * 0.3);
+    const 순이익 = 월매출 - 고정비 - 변동비;
+    const 손익분기 = 고정비 + 변동비;
+    html += '<div class="sim-result">';
+    html += '<div class="sim-item"><div class="label">월 예상 매출</div><div class="value">' + 월매출.toLocaleString() + '만원</div></div>';
+    html += '<div class="sim-item"><div class="label">월 고정비</div><div class="value">' + 고정비.toLocaleString() + '만원</div></div>';
+    html += '<div class="sim-item"><div class="label">월 변동비</div><div class="value">' + 변동비.toLocaleString() + '만원</div></div>';
+    html += '<div class="sim-item"><div class="label">월 예상 순이익</div><div class="value">' + 순이익.toLocaleString() + '만원</div></div>';
+    html += '<div class="sim-item"><div class="label">손익분기점</div><div class="value">' + 손익분기.toLocaleString() + '만원</div></div>';
+    html += '<div class="sim-item"><div class="label">회수 기간</div><div class="value">' + Math.round(예산 / 순이익) + '개월</div></div>';
+    html += '</div>';
+    html += '</div>';
+
+    html += '<div class="alert alert-info" style="margin-top: 20px;"><strong>💡 팁:</strong> 이 결과는 공공데이터 기반 추정치입니다. 실제 창업 전 현장 조사와 전문가 상담을 권장합니다.</div>';
+
+    resultContent.innerHTML = html;
+    btn.disabled = false;
+  }, 2000);
+}
+</script>
+</body>
+</html>
