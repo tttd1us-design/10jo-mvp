@@ -3,40 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>10조 스튜디오 — MVP 대시보드</title>
+<title>10조 스튜디오 — 업무 도구</title>
+<meta name="description" content="반품정책 체커, 창업 상권분석, 엑셀 병합 — 10조 스튜디오의 업무 도구. 설치 없이 브라우저에서 바로 사용.">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
-.container { max-width: 800px; margin: 0 auto; padding: 20px; }
-.header { text-align: center; padding: 40px 0 30px; }
-.header h1 { font-size: 2em; color: #1a1a1a; margin-bottom: 10px; }
-.header p { color: #666; font-size: 1.1em; }
-.card { background: #fff; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.card h2 { font-size: 1.3em; margin-bottom: 15px; color: #1a1a1a; }
-.app-list { list-style: none; padding: 0; }
-.app-list li { margin-bottom: 12px; }
-.app-list a { display: block; padding: 16px; background: #f8f9fa; border-radius: 8px; text-decoration: none; color: #4f46e5; font-weight: 600; transition: background 0.2s; }
-.app-list a:hover { background: #e0e7ff; }
-.app-list .desc { font-size: 0.9em; color: #666; font-weight: 400; margin-top: 4px; }
-.footer { text-align: center; padding: 30px; color: #999; font-size: 0.9em; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', Roboto, sans-serif; background: #fafafa; color: #1a1a1a; line-height: 1.65; }
+.container { max-width: 900px; margin: 0 auto; padding: 24px; }
+.header { text-align: center; padding: 56px 0 40px; }
+.header h1 { font-size: 2.2em; letter-spacing: -0.02em; margin-bottom: 12px; }
+.header p { color: #666; font-size: 1.05em; }
+.badge { display: inline-block; background: #eef2ff; color: #4f46e5; padding: 6px 14px; border-radius: 999px; font-size: 0.85em; font-weight: 600; margin-bottom: 16px; }
+.card { background: #fff; border: 1px solid #eaeaea; border-radius: 14px; padding: 28px; margin-bottom: 18px; }
+.card h2 { font-size: 1.15em; margin-bottom: 6px; letter-spacing: -0.01em; }
+.card .sub { color: #777; font-size: 0.92em; margin-bottom: 16px; }
+.app { display: block; padding: 20px; background: #fbfbfd; border: 1px solid #eee; border-radius: 10px; text-decoration: none; color: inherit; margin-bottom: 12px; transition: all 0.15s; }
+.app:hover { border-color: #c7d2fe; background: #f5f7ff; transform: translateY(-1px); }
+.app .name { font-weight: 700; color: #4f46e5; font-size: 1.05em; margin-bottom: 4px; }
+.app .desc { color: #555; font-size: 0.92em; }
+.app .price { display: inline-block; margin-top: 10px; font-size: 0.85em; color: #059669; font-weight: 600; background: #ecfdf5; padding: 4px 10px; border-radius: 6px; }
+.tag { display: inline-block; font-size: 0.75em; color: #666; background: #f3f4f6; padding: 3px 8px; border-radius: 5px; margin-left: 8px; vertical-align: middle; }
+.terms { font-size: 0.9em; color: #555; }
+.terms a { color: #4f46e5; text-decoration: none; }
+.terms a:hover { text-decoration: underline; }
+.footer { text-align: center; padding: 40px 20px; color: #999; font-size: 0.85em; border-top: 1px solid #eee; margin-top: 32px; }
+.footer .biz { margin-top: 10px; font-size: 0.95em; color: #888; line-height: 1.8; }
 </style>
 </head>
 <body>
 <div class="container">
-<div class="header">
-<h1>10조 스튜디오</h1>
-<p>MVP 대시보드 — 개발 완료된 앱 목록</p>
-</div>
-<div class="card">
-<h2>출시 준비 완료</h2>
-<ul class="app-list">
-<li><a href="refund-policy-checker/">반품정책 체커<div class="desc">쇼핑몰 환불 정책 문구를 전자상거래법 제17조 기준으로 점검</div></a></li>
-<li><a href="startup-district-analyzer/">창업 상권분석 도구<div class="desc">업종+지역+예산 3개 입력으로 상권 적합도 진단</div></a></li>
-</ul>
-</div>
-<div class="footer">
-<p>10조 스튜디오 v1.0 — 2026-10-08</p>
-</div>
+  <div class="header">
+    <div class="badge">설치 없이 브라우저에서 바로</div>
+    <h1>10조 스튜디오</h1>
+    <p>사업하면서 겪는 자잘한 불편을 도구로 만듭니다</p>
+  </div>
+
+  <div class="card">
+    <h2>업무 도구</h2>
+    <div class="sub">모든 처리는 브라우저 안에서만 이루어집니다. 파일이 서버로 전송되지 않습니다.</div>
+
+    <a class="app" href="refund-policy-checker/">
+      <div class="name">반품정책 체커 <span class="tag">쇼핑몰</span></div>
+      <div class="desc">환불 정책 문구를 전자상거래법 제17조 기준으로 점검하고, 위법 소지가 있는 문구를 짚어드립니다.</div>
+      <div class="price">1회 4,900원 / 월 19,900원</div>
+    </a>
+
+    <a class="app" href="startup-district-analyzer/">
+      <div class="name">창업 상권분석 도구 <span class="tag">창업</span></div>
+      <div class="desc">업종·지역·예산 3개만 입력하면 상권 적합도와 예상 매출 구간을 진단합니다.</div>
+      <div class="price">1회 9,900원 / 월 29,900원</div>
+    </a>
+
+    <a class="app" href="merge10/">
+      <div class="name">엑셀 파일 병합 도구 <span class="tag">사무</span></div>
+      <div class="desc">여러 엑셀·CSV 파일을 열 이름 기준으로 자동 병합합니다. 열 순서가 달라도, 시트가 여러 개여도 됩니다.</div>
+      <div class="price">1회 2,900원 / 월 9,900원</div>
+    </a>
+  </div>
+
+  <div class="card">
+    <h2>이용 안내</h2>
+    <div class="terms">
+      <p>· 회원가입 없이 사용할 수 있습니다.</p>
+      <p>· 업로드한 파일은 브라우저 안에서만 처리되며 서버에 저장되지 않습니다.</p>
+      <p>· 결과물은 자유롭게 상업적으로 이용하실 수 있습니다.</p>
+      <p style="margin-top:14px">
+        <a href="terms/">이용약관</a> &nbsp;·&nbsp;
+        <a href="privacy/">개인정보처리방침</a> &nbsp;·&nbsp;
+        <a href="refund/">환불정책</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>10조 스튜디오 — 2026</p>
+    <div class="biz">
+      상호: 10조 스튜디오 | 대표: 이상완<br>
+      이메일: 10jo.studio@gmail.com
+    </div>
+  </div>
 </div>
 </body>
 </html>
