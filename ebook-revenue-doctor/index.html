@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전자책 수익 진단기 — 내 전자책, 실제로 얼마 남을까?</title>
+<meta name="description" content="전자책 판매가와 ISBN 유무를 입력하면 8개 플랫폼 실수령액과 세금·신고 의무를 한 화면에서 비교합니다.">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif; background: #f5f7fa; color: #333; line-height: 1.6; }
+.container { max-width: 960px; margin: 0 auto; padding: 20px; }
+.header { text-align: center; padding: 40px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 16px; margin-bottom: 24px; }
+.header h1 { font-size: 2em; margin-bottom: 10px; }
+.header p { font-size: 1.05em; opacity: 0.92; }
+.disclaimer { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-size: 0.9em; }
+.disclaimer strong { color: #856404; }
+.card { background: white; border-radius: 12px; padding: 28px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #555; }
+.input-group input, .input-group select { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: border-color 0.3s; }
+.input-group input:focus, .input-group select:focus { outline: none; border-color: #667eea; }
+.input-group .hint { font-size: 0.85em; color: #888; margin-top: 5px; }
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.result-section { display: none; }
+.result-section.show { display: block; }
+.result-disclaimer { background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.88em; color: #856404; }
+.best-box { background: #f0fff4; border: 2px solid #28a745; border-radius: 10px; padding: 22px; margin-bottom: 20px; }
+.best-box h3 { color: #28a745; margin-bottom: 10px; font-size: 1.2em; }
+.best-box .big { font-size: 1.6em; font-weight: 700; color: #1e7e34; }
+.sort-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.sort-bar span { font-size: 0.9em; color: #666; font-weight: 600; }
+.sort-btn { padding: 6px 14px; border: 1.5px solid #ddd; background: white; border-radius: 20px; font-size: 0.85em; cursor: pointer; transition: all 0.2s; }
+.sort-btn:hover { border-color: #667eea; color: #667eea; }
+.sort-btn.active { background: #667eea; color: white; border-color: #667eea; }
+.platform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.platform-card { background: #f8f9fa; border-radius: 10px; padding: 18px; border: 2px solid transparent; transition: all 0.3s; }
+.platform-card.best { border-color: #28a745; background: #f0fff4; }
+.platform-card h3 { font-size: 1.05em; margin-bottom: 8px; color: #333; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.platform-card .price { font-size: 1.45em; font-weight: 700; color: #667eea; }
+.platform-card .detail { font-size: 0.88em; color: #666; margin-top: 4px; }
+.platform-card .note { font-size: 0.8em; color: #999; margin-top: 8px; line-height: 1.4; }
+.tax-info { background: #e8f4f8; border-radius: 10px; padding: 20px; margin-top: 20px; }
+.tax-info h3 { color: #17a2b8; margin-bottom: 12px; }
+.income-info { background: #fff8e1; border-radius: 10px; padding: 20px; margin-top: 20px; }
+.income-info h3 { color: #f57c00; margin-bottom: 12px; }
+.info-list { margin-left: 20px; }
+.info-list li { margin-bottom: 7px; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.83em; font-weight: 600; }
+.badge-free { background: #d4edda; color: #155724; }
+.badge-tax { background: #f8d7da; color: #721c24; }
+.badge-unknown { background: #fff3cd; color: #856404; }
+.badge-rec { background: #28a745; color: white; }
+.cta-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 32px; text-align: center; color: white; margin-bottom: 20px; }
+.cta-section h3 { font-size: 1.35em; margin-bottom: 10px; }
+.cta-section p { opacity: 0.92; margin-bottom: 20px; font-size: 0.95em; }
+.cta-btn { display: inline-block; background: white; color: #667eea; font-weight: 700; font-size: 1.05em; padding: 15px 40px; border: none; border-radius: 30px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.cta-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+.cta-sub { font-size: 0.82em; opacity: 0.85; margin-top: 12px; }
+.footer { text-align: center; padding: 24px 20px; color: #888; font-size: 0.85em; }
+.footer p { margin-bottom: 4px; }
+.legal { font-size: 0.8em; color: #aaa; margin-top: 8px; line-height: 1.5; }
+@media (max-width: 600px) {
+  .header h1 { font-size: 1.45em; }
+  .platform-grid { grid-template-columns: 1fr; }
+  .input-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>📚 전자책 수익 진단기</h1>
+    <p>내 전자책, 실제로 얼마 남을까?<br>8개 플랫폼 실수령액 + 세금·신고 의무 한 화면 비교</p>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠️ 이 도구는 참고용이며 세무 자문이 아닙니다.</strong> 정확한 세금 신고는 세무사와 상담하시기 바랍니다. 수수료율은 <strong>2026-10-06 기준</strong>이며, 플랫폼 정책 변경 시 즉시 무효될 수 있습니다.
+  </div>
+
+  <div class="card">
+    <h2 style="margin-bottom: 20px;">📝 정보 입력</h2>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="price">판매가 (원)</label>
+        <input type="number" id="price" placeholder="예: 19000" min="0" step="1000" value="19000">
+        <div class="hint">전자책 1권 판매 가격</div>
+      </div>
+      <div class="input-group">
+        <label for="monthlySales">월 예상 판매량 (권)</label>
+        <input type="number" id="monthlySales" placeholder="예: 50" min="0" value="50">
+        <div class="hint">한 달에 팔릴 것으로 예상되는 권수</div>
+      </div>
+    </div>
+    <div class="input-row">
+      <div class="input-group">
+        <label for="isbn">ISBN 유무</label>
+        <select id="isbn">
+          <option value="unknown">모르겠음</option>
+          <option value="yes">ISBN 있음 (출판사 발행)</option>
+          <option value="no" selected>ISBN 없음 (자체 발행 PDF)</option>
+        </select>
+        <div class="hint">ISBN 있으면 부가세 면세, 없으면 과세 10%</div>
+      </div>
+      <div class="input-group">
+        <label for="incomeType">소득 성격</label>
+        <select id="incomeType">
+          <option value="unknown">모르겠음</option>
+          <option value="one-time">일시적 (한 번 팔고 끝)</option>
+          <option value="continuous" selected>계속·반복 (지속적 판매)</option>
+        </select>
+        <div class="hint">계속 판매 → 사업소득 / 일시적 → 기타소득</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-section" id="resultSection">
+    <div class="result-disclaimer">
+      <strong>⚠️ 참고용 정보입니다.</strong> 세무 자문이 아니며, 실제 신고는 세무사 상담을 받으시기 바랍니다. 아래 수수료율은 2026-10-06 기준입니다.
+    </div>
+
+    <div id="bestPlatform"></div>
+
+    <div class="card">
+      <div class="sort-bar">
+        <span>정렬:</span>
+        <button class="sort-btn active" data-sort="revenue">권당 실수령액 높은 순</button>
+        <button class="sort-btn" data-sort="monthly">월 순수익 높은 순</button>
+        <button class="sort-btn" data-sort="fee">수수료 낮은 순</button>
+      </div>
+      <div class="platform-grid" id="platformGrid"></div>
+    </div>
+
+    <div class="tax-info" id="taxInfo">
+      <h3>🧾 ISBN 유무 → 부가세 판정</h3>
+      <div id="taxContent"></div>
+    </div>
+
+    <div class="income-info" id="incomeInfo">
+      <h3>📋 소득 성격 판정과 신고 안내</h3>
+      <div id="incomeContent"></div>
+    </div>
+
+    <div class="cta-section" id="ctaSection">
+      <h3>더 정확하게 — 내 상황 맞춤 진단</h3>
+      <p>내 조건에 맞는 절세 시나리오 3안 + 플랫폼 조합 전략 + 연간 시뮬레이션</p>
+      <button class="cta-btn" id="ctaBtn">상세 리포트 받기 (9,900원)</button>
+      <div class="cta-sub">결제 연동 준비 중입니다. 관심 있으시면 아래 버튼을 눌러주세요.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>10조 스튜디오 | 전자책 수익 진단기 v2.0</p>
+    <p>수수료 기준일: 2026-10-06 | 본 도구는 참고용이며 세무 자문이 아닙니다</p>
+    <div class="legal">
+      근거: 부가가치세법 시행규칙 제26조(면세하는 도서) · 국세청 부가가치세과-256(2013.3.22.) · 부가가치세법 제69조①<br>
+      수수료 데이터: 크몽 서비스 이용료 구간별 16.4%/9.4%/4.4% + 결제망 3.3% · 리틀리 3.5% · 탈잉 20% · 스마트스토어 2~5% · 리디북스 40% · 교보문고 35% · 예스24 35% · 알라딘 35% · 아마존 KDP 70%/35%
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 플랫폼 수수료 데이터 (기준일: 2026-10-06) =====
+const FEE_BASELINE_DATE = '2026-10-06';
+const USD_KRW = 1300; // 환율 가정
+
+const PLATFORMS = [
+  {
+    name: '크몽',
+    type: 'kmong',
+    tiers: [
+      { max: 700000, rate: 0.164 },
+      { max: 1500000, rate: 0.094 },
+      { max: Infinity, rate: 0.044 }
+    ],
+    paymentFee: 0.033,
+    note: '구간 누진 16.4%/9.4%/4.4% + 결제망 3.3%'
+  },
+  { name: '리틀리', type: 'flat', rate: 0.035, note: '수수료 3.5%' },
+  { name: '탈잉', type: 'flat', rate: 0.20, note: '수수료 20%' },
+  { name: '스마트스토어', type: 'range', rate: 0.02, rateMax: 0.05, note: '수수료 2~5% (최저~최고)' },
+  { name: '리디북스', type: 'flat', rate: 0.40, note: '수수료 40%' },
+  { name: '교보문고', type: 'flat', rate: 0.35, note: '수수료 35%' },
+  { name: '예스24', type: 'flat', rate: 0.35, note: '수수료 35%' },
+  { name: '알라딘', type: 'flat', rate: 0.35, note: '수수료 35%' },
+  {
+    name: '아마존 KDP',
+    type: 'kdp',
+    note: '70% (2.99~12.99달러) / 35% (그 외)'
+  }
+];
+
+// ===== 수수료 계산 =====
+function calcKmongFee(amount) {
+  let fee = 0;
+  let remaining = amount;
+  let prevMax = 0;
+  for (const tier of PLATFORMS[0].tiers) {
+    const tierAmount = Math.min(remaining, tier.max - prevMax);
+    if (tierAmount <= 0) break;
+    fee += tierAmount * tier.rate;
+    remaining -= tierAmount;
+    prevMax = tier.max;
+  }
+  fee += amount * PLATFORMS[0].paymentFee;
+  // 결제망 이용료에도 부가세 10% 가산 (spec 요구)
+  fee += amount * PLATFORMS[0].paymentFee * 0.10;
+  return fee;
+}
+
+function calcPlatform(price, platform) {
+  if (platform.type === 'kmong') {
+    const fee = calcKmongFee(price);
+    return { revenue: price - fee, feeRate: fee / price };
+  }
+  if (platform.type === 'flat') {
+    return { revenue: price * (1 - platform.rate), feeRate: platform.rate };
+  }
+  if (platform.type === 'range') {
+    // 최저 수수료 기준(가장 유리)과 최고 수수료 기준(가장 불리)을 함께 반환
+    return {
+      revenue: price * (1 - platform.rate),
+      revenueMin: price * (1 - platform.rateMax),
+      feeRate: platform.rate,
+      isRange: true
+    };
+  }
+  if (platform.type === 'kdp') {
+    const usdPrice = price / USD_KRW;
+    const rate = (usdPrice >= 2.99 && usdPrice <= 12.99) ? 0.70 : 0.35;
+    return { revenue: price * rate, feeRate: 1 - rate };
+  }
+  return { revenue: price, feeRate: 0 };
+}
+
+// ===== 부가세 판정 =====
+function calcVAT(monthlyRevenue, isbn) {
+  if (isbn === 'yes') {
+    return {
+      status: '면세',
+      badge: 'badge-free',
+      vat: 0,
+      reason: 'ISBN이 있는 도서는 부가가치세 면세 대상입니다.',
+      legal: '부가가치세법 시행규칙 제26조(면세하는 도서) · 국세청 부가가치세과-256(2013.3.22.)',
+      schedule: [
+        '부가세 신고 불필요 (면세사업자)',
+        '대신 매년 2월 10일까지 「사업장현황신고」를 해야 합니다',
+        '면세사업자도 사업자등록은 필요합니다'
+      ]
+    };
+  }
+  if (isbn === 'no') {
+    const vat = monthlyRevenue * 0.10;
+    return {
+      status: '과세',
+      badge: 'badge-tax',
+      vat: vat,
+      reason: 'ISBN이 없는 전자책(PDF 등)은 부가가치세 과세 대상입니다. 매출의 10%를 부가세로 납부합니다.',
+      legal: '부가가치세법 제26조 · 시행규칙 제26조(면세 도서 범위)',
+      schedule: [
+        '일반과세자: 1월 25일 / 7월 25일 확정신고',
+        '간이과세자: 매년 1월 25일',
+        '연매출 4,800만 원 미만 간이과세자는 납부 면제 (부가가치세법 제69조①)',
+        '세금계산서 발급 의무 검토 필요'
+      ]
+    };
+  }
+  return {
+    status: '판정 불가',
+    badge: 'badge-unknown',
+    vat: 0,
+    reason: 'ISBN 유무를 확인해야 부가세를 판정할 수 있습니다.',
+    legal: '부가가치세법 시행규칙 제26조',
+    schedule: [
+      '확인 방법 1: 책 뒤표지 또는 판권지에 ISBN 바코드(978-89-…)가 있는지 확인',
+      '확인 방법 2: 출판사(또는 플랫폼)에 "ISBN 발급 여부"를 문의',
+      '확인 방법 3: 국립중앙도서관 ISBN센터(isbn.nl.go.kr)에서 본인 책 검색',
+      '대부분의 크몽·리틀리 PDF 전자책은 ISBN이 없어 과세 대상입니다'
+    ]
+  };
+}
+
+// ===== 소득 성격 판정 =====
+function calcIncome(type, monthlyRevenue) {
+  const annual = monthlyRevenue * 12;
+  if (type === 'continuous') {
+    return {
+      type: '사업소득',
+      badge: 'badge-tax',
+      guidance: [
+        '지속적으로 전자책을 판매하면 「사업소득」으로 분류됩니다',
+        '매년 5월 종합소득세 신고 (전년도 소득 기준)',
+        '사업 개시일로부터 20일 이내 사업자등록 필요',
+        '연매출 4,800만 원 미만이면 간이과세자 적용 가능 (부가가치세법 제69조①)',
+        '경비(제작비·광고비·플랫폼 수수료)를 실제로 공제받을 수 있습니다',
+        '장부 기장 시 필요경비 인정 범위가 넓어 유리합니다'
+      ]
+    };
+  }
+  if (type === 'one-time') {
+    const deemedExpense = annual * 0.60;
+    const taxable = annual - deemedExpense;
+    const canSeparate = annual <= 3000000;
+    return {
+      type: '기타소득',
+      badge: 'badge-unknown',
+      guidance: [
+        '일시적·우발적으로 발생한 소득은 「기타소득」으로 분류됩니다',
+        '60% 의제경비가 자동 적용됩니다 (실제 경비 입증 시 더 공제 가능)',
+        canSeparate
+          ? '연 소득 300만 원 이하 → 분리과세 선택 가능 (다른 소득과 합산하지 않음)'
+          : '연 소득 300만 원 초과 → 종합소득과 합산 과세됩니다',
+        '원천징수 8.8% (소득세 3% + 지방소득세 0.3%) 가 발생할 수 있습니다',
+        '사업자등록은 원칙적으로 불필요합니다'
+      ],
+      calc: {
+        annual: annual,
+        deemedExpense: deemedExpense,
+        taxable: taxable,
+        canSeparate: canSeparate
+      }
+    };
+  }
+  return {
+    type: '판정 불가',
+    badge: 'badge-unknown',
+    guidance: [
+      '소득 성격을 선택해야 신고 의무를 판정할 수 있습니다',
+      '계속·반복 판매 → 사업소득 / 일시적 판매 → 기타소득',
+      '판단 기준: 반복성, 계속성, 사업 의사, 규모 (국세청 예규 기준)',
+      '애매하면 세무사 상담을 권합니다'
+    ]
+  };
+}
+
+// ===== 포맷 =====
+function won(n) {
+  return new Intl.NumberFormat('ko-KR').format(Math.round(n)) + '원';
+}
+function pct(r) {
+  return (r * 100).toFixed(1) + '%';
+}
+
+// ===== 상태 =====
+let currentSort = 'revenue';
+let lastResults = [];
+
+// ===== 메인 렌더 =====
+function updateResults() {
+  const price = parseFloat(document.getElementById('price').value) || 0;
+  const monthlySales = parseInt(document.getElementById('monthlySales').value) || 0;
+  const isbn = document.getElementById('isbn').value;
+  const incomeType = document.getElementById('incomeType').value;
+
+  const section = document.getElementById('resultSection');
+  if (price <= 0 || monthlySales <= 0) {
+    section.classList.remove('show');
+    return;
+  }
+  section.classList.add('show');
+
+  // 플랫폼별 계산
+  lastResults = PLATFORMS.map(p => {
+    const c = calcPlatform(price, p);
+    return {
+      name: p.name,
+      note: p.note,
+      revenue: c.revenue,
+      revenueMin: c.revenueMin,
+      isRange: !!c.isRange,
+      feeRate: c.feeRate,
+      monthly: c.revenue * monthlySales
+    };
+  });
+
+  const best = lastResults.reduce((a, b) => (a.monthly > b.monthly ? a : b));
+  const worst = lastResults.reduce((a, b) => (a.monthly < b.monthly ? a : b));
+  const diff = best.monthly - worst.monthly;
+
+  // 최적 플랫폼 추천
+  document.getElementById('bestPlatform').innerHTML = `
+    <div class="best-box">
+      <h3>🏆 추천 플랫폼: ${best.name}</h3>
+      <div class="big">월 ${won(best.monthly)}</div>
+      <p style="margin-top: 8px;">권당 실수령액 <strong>${won(best.revenue)}</strong> · 실효 수수료율 <strong>${pct(best.feeRate)}</strong></p>
+      <p style="margin-top: 10px; font-size: 0.92em; color: #555;">
+        가장 불리한 <strong>${worst.name}</strong>(${won(worst.monthly)}) 대비
+        <strong style="color: #1e7e34;">월 ${won(diff)}</strong> 더 남습니다.
+      </p>
+    </div>
+  `;
+
+  renderGrid(best.name);
+
+  // 부가세
+  const bestMonthly = best.monthly;
+  const vat = calcVAT(bestMonthly, isbn);
+  document.getElementById('taxContent').innerHTML = `
+    <p><span class="badge ${vat.badge}">${vat.status}</span></p>
+    <p style="margin-top: 12px;">${vat.reason}</p>
+    ${vat.vat > 0 ? `<p style="margin-top: 10px; font-size: 1.05em;">예상 부가세 (월): <strong style="color: #721c24;">${won(vat.vat)}</strong> → 부가세 차감 후 월 실수령 <strong>${won(bestMonthly - vat.vat)}</strong></p>` : ''}
+    <p style="margin-top: 14px; font-weight: 600;">신고 일정·의무</p>
+    <ul class="info-list">
+      ${vat.schedule.map(s => `<li>${s}</li>`).join('')}
+    </ul>
+    <p style="margin-top: 12px; font-size: 0.82em; color: #666;">근거: ${vat.legal}</p>
+  `;
+
+  // 소득 성격
+  const inc = calcIncome(incomeType, bestMonthly);
+  let calcHtml = '';
+  if (inc.calc) {
+    calcHtml = `
+      <div style="margin-top: 14px; background: white; border-radius: 8px; padding: 14px;">
+        <p style="font-weight: 600; margin-bottom: 8px;">연간 기준 계산</p>
+        <p>연 매출: <strong>${won(inc.calc.annual)}</strong></p>
+        <p>60% 의제경비: <strong>${won(inc.calc.deemedExpense)}</strong></p>
+        <p>과세 대상 소득: <strong>${won(inc.calc.taxable)}</strong></p>
+        <p style="margin-top: 6px;">${inc.calc.canSeparate ? '✅ 300만 원 이하 → 분리과세 선택 가능' : '⚠️ 300만 원 초과 → 종합과세 합산'}</p>
+      </div>
+    `;
+  }
+  document.getElementById('incomeContent').innerHTML = `
+    <p><span class="badge ${inc.badge}">${inc.type}</span></p>
+    <ul class="info-list" style="margin-top: 12px;">
+      ${inc.guidance.map(g => `<li>${g}</li>`).join('')}
+    </ul>
+    ${calcHtml}
+  `;
+}
+
+function renderGrid(bestName) {
+  const sorted = [...lastResults].sort((a, b) => {
+    if (currentSort === 'revenue') return b.revenue - a.revenue;
+    if (currentSort === 'monthly') return b.monthly - a.monthly;
+    if (currentSort === 'fee') return a.feeRate - b.feeRate;
+    return 0;
+  });
+
+  document.getElementById('platformGrid').innerHTML = sorted.map(r => `
+    <div class="platform-card ${r.name === bestName ? 'best' : ''}">
+      <h3>${r.name} ${r.name === bestName ? '<span class="badge badge-rec">추천</span>' : ''}</h3>
+      <div class="price">${won(r.revenue)}</div>
+      <div class="detail">권당 실수령액 · 실효 수수료 ${pct(r.feeRate)}</div>
+      ${r.isRange ? `<div class="detail" style="color: #c00;">수수료 5% 적용 시: ${won(r.revenueMin)}</div>` : ''}
+      <div class="detail" style="margin-top: 6px; font-weight: 600;">월 ${won(r.monthly)}</div>
+      <div class="note">${r.note}</div>
+    </div>
+  `).join('');
+}
+
+// ===== 이벤트 =====
+['price', 'monthlySales', 'isbn', 'incomeType'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', updateResults);
+  el.addEventListener('change', updateResults);
+});
+
+document.querySelectorAll('.sort-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSort = btn.dataset.sort;
+    const price = parseFloat(document.getElementById('price').value) || 0;
+    const monthlySales = parseInt(document.getElementById('monthlySales').value) || 0;
+    if (price > 0 && monthlySales > 0) {
+      const best = lastResults.reduce((a, b) => (a.monthly > b.monthly ? a : b));
+      renderGrid(best.name);
+    }
+  });
+});
+
+// 결제 버튼 — 클릭률 측정용 (실결제 아님)
+document.getElementById('ctaBtn').addEventListener('click', () => {
+  const btn = document.getElementById('ctaBtn');
+  btn.textContent = '✅ 관심 등록 완료 — 곧 안내드립니다';
+  btn.style.background = '#d4edda';
+  btn.style.color = '#155724';
+  try {
+    const log = JSON.parse(localStorage.getItem('erd_cta_clicks') || '[]');
+    log.push({ t: new Date().toISOString(), price: document.getElementById('price').value });
+    localStorage.setItem('erd_cta_clicks', JSON.stringify(log));
+  } catch (e) {}
+});
+
+// 초기 렌더
+updateResults();
+</script>
+</body>
+</html>
