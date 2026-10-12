@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>창업 상권분석 — 업종·지역·예산 진단</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;background:#f5f7fa;color:#333;line-height:1.6}
+.container{max-width:960px;margin:0 auto;padding:20px}
+.header{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:16px;margin-bottom:24px}
+.header h1{font-size:2em;margin-bottom:10px}
+.header p{font-size:1.05em;opacity:.92}
+.card{background:#fff;border-radius:12px;padding:28px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.card h2{font-size:1.2em;margin-bottom:16px;color:#1a1a1a}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-weight:600;margin-bottom:6px;color:#555}
+.input-group select,.input-group input{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:1em}
+.input-group select:focus,.input-group input:focus{outline:none;border-color:#667eea}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.result{background:#f0f4ff;border-left:4px solid #667eea;padding:20px;border-radius:8px;margin-top:16px}
+.result h3{color:#667eea;margin-bottom:10px}
+.score-circle{width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.5em;font-weight:700;margin:16px auto}
+.score-label{text-align:center;font-size:1.1em;font-weight:600;margin-top:8px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:16px}
+.metric{background:#f9f9f9;padding:16px;border-radius:8px;text-align:center}
+.metric .label{font-size:.85em;color:#888;margin-bottom:4px}
+.metric .value{font-size:1.3em;font-weight:700;color:#333}
+.metric .change{font-size:.85em;margin-top:4px}
+.change.up{color:#28a745}
+.change.down{color:#dc3545}
+.change.neutral{color:#6c757d}
+.recommendation{background:#fff3cd;border-left:4px solid #ffc107;padding:16px;border-radius:8px;margin-top:16px}
+.recommendation h4{color:#856404;margin-bottom:8px}
+.recommendation ul{margin-left:20px}
+.recommendation li{margin-bottom:4px}
+.btn{display:inline-block;padding:14px 32px;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:1.1em;font-weight:600;cursor:pointer;margin-top:16px}
+.btn:hover{background:#5a6fd6}
+.footer{text-align:center;padding:30px;color:#999;font-size:.9em}
+@media(max-width:768px){.input-row{grid-template-columns:1fr}.metrics{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>창업 상권분석</h1>
+<p>업종·지역·예산을 입력하면 상권 적합도와 예상 매출 구간을 진단합니다</p>
+</div>
+
+<div class="card">
+<h2>1. 기본 정보</h2>
+<div class="input-row">
+<div class="input-group">
+<label for="businessType">업종</label>
+<select id="businessType" onchange="calculate()">
+<option value="cafe">카페</option>
+<option value="restaurant">음식점</option>
+<option value="retail">소매점</option>
+<option value="service">서비스업</option>
+<option value="beauty">뷰티/미용</option>
+<option value="fitness">피트니스</option>
+<option value="other">기타</option>
+</select>
+</div>
+<div class="input-group">
+<label for="district">지역</label>
+<select id="district" onchange="calculate()">
+<option value="seoul-gangnam">서울 강남</option>
+<option value="seoul-mapo">서울 마포</option>
+<option value="seoul-nowon">서울 노원</option>
+<option value="seoul-songpa">서울 송파</option>
+<option value="seoul-else">서울 기타</option>
+<option value="gyeonggi">경기</option>
+<option value="busan">부산</option>
+<option value="other">기타 지역</option>
+</select>
+</div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label for="budget">예상 창업 비용 (만원)</label>
+<input type="number" id="budget" value="5000" min="0" step="100" oninput="calculate()">
+</div>
+<div class="input-group">
+<label for="area">예상 면적 (㎡)</label>
+<input type="number" id="area" value="30" min="0" step="1" oninput="calculate()">
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>2. 분석 결과</h2>
+<div class="result" id="result">
+<h3>상권 적합도</h3>
+<div class="score-circle" id="score">—</div>
+<div class="score-label" id="scoreLabel">위에서 정보를 입력하면 자동으로 계산됩니다.</div>
+</div>
+
+<div class="metrics" id="metrics">
+<div class="metric">
+<div class="label">예상 월 매출</div>
+<div class="value" id="estRevenue">—</div>
+</div>
+<div class="metric">
+<div class="label">예상 월 순이익</div>
+<div class="value" id="estProfit">—</div>
+</div>
+<div class="metric">
+<div class="label">손익분기 예상</div>
+<div class="value" id="breakeven">—</div>
+</div>
+<div class="metric">
+<div class="label">경쟁 밀도</div>
+<div class="value" id="competition">—</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>3. 맞춤 권장사항</h2>
+<div class="recommendation" id="recommendation">
+<h4>분석 결과를 바탕으로 한 권장사항</h4>
+<ul id="recList">
+<li>위에서 정보를 입력하면 맞춤 권장사항이 표시됩니다.</li>
+</ul>
+</div>
+</div>
+
+<div class="footer">
+<p>창업 상권분석 v1.0 — 계산 결과는 예상치이며 실제 상권 상황과 다를 수 있습니다.</p>
+</div>
+</div>
+
+<script>
+const businessData={
+cafe:{name:'카afe',avgRevenue:800,avgMargin:0.25,competition:'높음',rent:150},
+restaurant:{name:'음식점',avgRevenue:1200,avgMargin:0.15,competition:'높음',rent:200},
+retail:{name:'소매점',avgRevenue:1000,avgMargin:0.20,competition:'중간',rent:180},
+service:{name:'서비스업',avgRevenue:900,avgMargin:0.30,competition:'중간',rent:120},
+beauty:{name:'뷰티/미용',avgRevenue:700,avgMargin:0.35,competition:'중간',rent:100},
+fitness:{name:'피트니스',avgRevenue:1100,avgMargin:0.25,competition:'낮음',rent:130},
+other:{name:'기타',avgRevenue:800,avgMargin:0.20,competition:'중간',rent:150}
+};
+
+const districtData={
+'seoul-gangnam':{name:'서울 강남',rentMultiplier:1.5,footTraffic:1.4,competitionMultiplier:1.3},
+'seoul-mapo':{name:'서울 마포',rentMultiplier:1.2,footTraffic:1.3,competitionMultiplier:1.2},
+'seoul-nowon':{name:'서울 노원',rentMultiplier:0.9,footTraffic:1.0,competitionMultiplier:0.9},
+'seoul-songpa':{name:'서울 송파',rentMultiplier:1.0,footTraffic:1.1,competitionMultiplier:1.0},
+'seoul-else':{name:'서울 기타',rentMultiplier:0.8,footTraffic:0.9,competitionMultiplier:0.8},
+'gyeonggi':{name:'경기',rentMultiplier:0.7,footTraffic:0.8,competitionMultiplier:0.7},
+'busan':{name:'부산',rentMultiplier:0.6,footTraffic:0.7,competitionMultiplier:0.6},
+'other':{name:'기타 지역',rentMultiplier:0.5,footTraffic:0.6,competitionMultiplier:0.5}
+};
+
+function calculate(){
+const bizType=document.getElementById('businessType').value;
+const dist=document.getElementById('district').value;
+const budget=parseFloat(document.getElementById('budget').value)||0;
+const area=parseFloat(document.getElementById('area').value)||0;
+
+const biz=businessData[bizType];
+const distData=districtData[dist];
+
+// 상권 적합도 점수 (0-100)
+let score=50;
+score+=(distData.footTraffic-1)*20;
+score-=(distData.competitionMultiplier-1)*15;
+score+=(biz.avgMargin-0.2)*30;
+if(budget<3000)score-=10;
+if(budget>10000)score+=5;
+if(area<20)score-=5;
+if(area>50)score+=5;
+score=Math.max(0,Math.min(100,Math.round(score)));
+
+// 예상 매출
+const estRevenue=Math.round(biz.avgRevenue*distData.footTraffic*10);
+const estProfit=Math.round(estRevenue*biz.avgMargin);
+const monthlyRent=Math.round(biz.rent*distData.rentMultiplier*area);
+const breakeven=estProfit>monthlyRent?Math.round(budget/(estProfit-monthlyRent)):'—';
+
+// 경쟁 밀도
+const compLevel=biz.competition;
+const compScore=distData.competitionMultiplier>1.1?'높음':distData.competitionMultiplier>0.8?'중간':'낮음';
+
+document.getElementById('score').textContent=score;
+document.getElementById('scoreLabel').textContent=score>=70?'양호':score>=40?'보통':'주의';
+document.getElementById('estRevenue').textContent=estRevenue.toLocaleString()+'만원';
+document.getElementById('estProfit').textContent=estProfit.toLocaleString()+'만원';
+document.getElementById('breakeven').textContent=breakeven==='—'?'수익 없음':breakeven+'개월';
+document.getElementById('competition').textContent=compScore;
+
+// 권장사항
+const recs=[];
+if(score<40)recs.push('현재 조건에서는 창업 위험이 높습니다. 지역 또는 업종 재검토를 권장합니다.');
+if(budget<3000)recs.push('창업 비용이 3,000만원 미만입니다. 초기 비용 증액 또는 저비용 업종 검토를 권장합니다.');
+if(area<20)recs.push('면적이 20㎡ 미만입니다. 좁은 면적에 맞는 업종(카페, 소매점)을 권장합니다.');
+if(distData.competitionMultiplier>1.1)recs.push('해당 지역은 경쟁이 치열합니다. 차별화 전략이 필요합니다.');
+if(biz.avgMargin<0.2)recs.push('업종의 평균 마진이 낮습니다. 원가 절감 또는 객단가 인상 전략이 필요합니다.');
+if(score>=70)recs.push('현재 조건은 창업에 양호합니다. 추가 시장 조사 후 진행을 권장합니다.');
+if(recs.length===0)recs.push('현재 조건은 보통 수준입니다. 추가 시장 조사를 권장합니다.');
+
+document.getElementById('recList').innerHTML=recs.map(r=>`<li>${r}</li>`).join('');
+}
+calculate();
+</script>
+</body>
+</html>
