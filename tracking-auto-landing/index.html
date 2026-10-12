@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>송장자동화 — 주문 처리 시간을 90% 줄입니다</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 20px; text-align: center; border-radius: 12px; margin-bottom: 40px; }
+        .hero h1 { font-size: 2.5em; margin-bottom: 16px; }
+        .hero p { font-size: 1.2em; opacity: 0.9; }
+        .pain { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .pain h3 { color: #856404; margin-bottom: 10px; }
+        .solution { background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .solution h3 { color: #0c5460; margin-bottom: 10px; }
+        .form-section { background: #f8f9fa; padding: 30px; border-radius: 12px; margin: 30px 0; }
+        .form-section h2 { margin-bottom: 20px; color: #333; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
+        .btn { background: #667eea; color: white; padding: 16px 32px; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; width: 100%; }
+        .btn:hover { background: #5a6fd6; }
+        .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
+        .benefit-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
+        .benefit-card .icon { font-size: 2em; margin-bottom: 10px; }
+        .benefit-card h4 { margin-bottom: 8px; color: #667eea; }
+        .pricing { background: #e8f5e9; border-left: 4px solid #4caf50; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .pricing h3 { color: #2e7d32; margin-bottom: 10px; }
+        .price { font-size: 2em; font-weight: bold; color: #2e7d32; }
+        .footer { text-align: center; padding: 20px; color: #666; font-size: 0.9em; }
+        .hidden { display: none; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; padding: 20px; margin: 20px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>송장자동화</h1>
+            <p>주문 처리 시간을 90% 줄입니다. 송장 번호 수기 입력 지옥에서 해방되세요.</p>
+        </div>
+
+        <div class="pain">
+            <h3>💡 이런 고민이 있으신가요?</h3>
+            <ul>
+                <li>주문 100개당 송장 번호 수기 입력에 1~2시간 소요</li>
+                <li>실수로 엉뚱한 송장 번호를 입력하는 오류 빈번</li>
+                <li>쇼핑몰 연동 실패로 매번 수동 작업</li>
+                <li>배송 추적이 안 되어 고객 문의에 시달림</li>
+            </ul>
+        </div>
+
+        <div class="solution">
+            <h3>✅ 송장자동화가 해결합니다</h3>
+            <ul>
+                <li>주문 → 송장 자동 생성 → 자동 등록 (1클릭)</li>
+                <li>네이버 스마트스토어, 쿠팡, 지마켓 등 주요 쇼핑몰 연동</li>
+                <li>배송 상태 자동 업데이트 및 고객 알림</li>
+                <li>엑셀 일괄 발송 지원</li>
+            </ul>
+        </div>
+
+        <div class="benefits">
+            <div class="benefit-card">
+                <div class="icon">⏰</div>
+                <h4>시간 절약</h4>
+                <p>주문 처리 시간 90% 단축</p>
+            </div>
+            <div class="benefit-card">
+                <div class="icon">🎯</div>
+                <h4>정확도</h4>
+                <p>송장 번호 오류 0% 목표</p>
+            </div>
+            <div class="benefit-card">
+                <div class="icon">🔗</div>
+                <h4>연동</h4>
+                <p>주요 쇼핑몰 자동 연동</p>
+            </div>
+            <div class="benefit-card">
+                <div class="icon">📱</div>
+                <h4>모바일</h4>
+                <p>스마트폰으로 언제 어디서나</p>
+            </div>
+        </div>
+
+        <div class="pricing">
+            <h3>💰 사전예약 특별가</h3>
+            <p class="price">월 9,900원</p>
+            <p>정가 월 19,900원 대비 50% 할인</p>
+            <p>사전예약 고객은 영구 특별가 적용</p>
+        </div>
+
+        <div class="form-section">
+            <h2>📧 사전예약 신청</h2>
+            <p>이메일을 남겨주시면 출시 알림과 함께 특별 할인 정보를 보내드립니다.</p>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="email">이메일 *</label>
+                    <input type="email" id="email" name="email" required placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="shopping_mall">주요 쇼핑몰</label>
+                    <select id="shopping_mall" name="shopping_mall">
+                        <option value="">선택해주세요</option>
+                        <option value="naver">네이버 스마트스토어</option>
+                        <option value="coupang">쿠팡</option>
+                        <option value="gmarket">지마켓</option>
+                        <option value="11st">11번가</option>
+                        <option value="etc">기타</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="orders">월 평균 주문 수</label>
+                    <select id="orders" name="orders">
+                        <option value="">선택해주세요</option>
+                        <option value="0-50">50개 미만</option>
+                        <option value="50-200">50~200개</option>
+                        <option value="200-500">200~500개</option>
+                        <option value="500+">500개 이상</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pay_willingness">월 지불 의향 금액</label>
+                    <select id="pay_willingness" name="pay_willingness">
+                        <option value="">선택해주세요</option>
+                        <option value="0">무료만 가능</option>
+                        <option value="5000">5,000원 이하</option>
+                        <option value="10000">10,000원 이하</option>
+                        <option value="20000">20,000원 이하</option>
+                        <option value="50000">50,000원 이하</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">사전예약 신청</button>
+            </form>
+            <div id="successMessage" class="success hidden">
+                <h3>✅ 신청 완료!</h3>
+                <p>출시 알림과 특별 할인 정보를 보내드리겠습니다.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 송장자동화 | 10조 스튜디오</p>
+            <p>문의: tracking-auto@example.com</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                email: document.getElementById('email').value,
+                shopping_mall: document.getElementById('shopping_mall').value,
+                orders: document.getElementById('orders').value,
+                pay_willingness: document.getElementById('pay_willingness').value,
+                timestamp: new Date().toISOString(),
+                source: 'landing_page'
+            };
+
+            // 로컬 스토리지에 저장 (실제 서비스에서는 서버로 전송)
+            let submissions = JSON.parse(localStorage.getItem('p0041_submissions') || '[]');
+            submissions.push(formData);
+            localStorage.setItem('p0041_submissions', JSON.stringify(submissions));
+
+            // 성공 메시지 표시
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+
+            console.log('Submission:', formData);
+        });
+    </script>
+</body>
+</html>
