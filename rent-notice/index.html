@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>렌트노티스 — 원클릭 임대료 미납 내용증명 생성기</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.header { text-align: center; padding: 40px 0 30px; }
+.header h1 { font-size: 2em; color: #1a1a1a; margin-bottom: 10px; }
+.header p { color: #666; font-size: 1.1em; }
+.card { background: #fff; border-radius: 12px; padding: 30px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.card h2 { font-size: 1.3em; margin-bottom: 15px; color: #1a1a1a; }
+.input-group { margin-bottom: 20px; }
+.input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #444; }
+.input-group input, .input-group textarea, .input-group select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; font-family: inherit; }
+.input-group textarea { min-height: 120px; resize: vertical; }
+.btn { display: inline-block; padding: 14px 32px; background: #4f46e5; color: #fff; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+.btn:hover { background: #4338ca; }
+.btn:disabled { background: #9ca3af; cursor: not-allowed; }
+.btn-secondary { background: #6b7280; }
+.btn-secondary:hover { background: #4b5563; }
+.preview { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 30px; margin-top: 20px; white-space: pre-wrap; font-family: 'Malgun Gothic', sans-serif; font-size: 0.95em; line-height: 1.8; }
+.watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 4em; color: rgba(0,0,0,0.05); pointer-events: none; z-index: 1000; }
+.footer { text-align: center; padding: 30px; color: #999; font-size: 0.9em; }
+@media (max-width: 768px) { .container { padding: 10px; } .card { padding: 20px; } }
+</style>
+</head>
+<body>
+<div class="watermark">미리보기</div>
+<div class="container">
+<div class="header">
+<h1>렌트노티스</h1>
+<p>임대료 미납 내용증명을 1분 만에 생성하세요</p>
+</div>
+
+<div class="card">
+<h2>1. 상황 선택</h2>
+<div class="input-group">
+<label for="situation">임대 유형</label>
+<select id="situation" onchange="updateTemplate()">
+<option value="주택">주택 (2회 연체 시 해지 가능)</option>
+<option value="상가">상가 (3회 연체 시 해지 가능)</option>
+</select>
+</div>
+<div class="input-group">
+<label for="stage">경고 단계</label>
+<select id="stage" onchange="updateTemplate()">
+<option value="1">1단계: 1회 미납 독촉</option>
+<option value="2">2단계: 최종 경고 (계약 해지 예고)</option>
+<option value="3">3단계: 계약 해지 및 명도 요구</option>
+</select>
+</div>
+</div>
+
+<div class="card">
+<h2>2. 임대인 정보</h2>
+<div class="input-group">
+<label for="landlordName">임대인 성명</label>
+<input type="text" id="landlordName" placeholder="홍길동">
+</div>
+<div class="input-group">
+<label for="landlordAddr">임대인 주소</label>
+<input type="text" id="landlordAddr" placeholder="서울특별시 강남구 테헤란로 123, 456호">
+</div>
+</div>
+
+<div class="card">
+<h2>3. 임차인 정보</h2>
+<div class="input-group">
+<label for="tenantName">임차인 성명</label>
+<input type="text" id="tenantName" placeholder="김철수">
+</div>
+<div class="input-group">
+<label for="tenantAddr">임차인 주소</label>
+<input type="text" id="tenantAddr" placeholder="서울특별시 강남구 테헤란로 123, 456호">
+</div>
+</div>
+
+<div class="card">
+<h2>4. 부동산 정보</h2>
+<div class="input-group">
+<label for="propertyAddr">임대차 목적물 주소</label>
+<input type="text" id="propertyAddr" placeholder="서울특별시 강남구 테헤란로 123, 456호">
+</div>
+</div>
+
+<div class="card">
+<h2>5. 미납 내역</h2>
+<div class="input-group">
+<label for="unpaidMonths">미납 월수</label>
+<input type="number" id="unpaidMonths" value="1" min="1" max="12" onchange="updateTemplate()">
+</div>
+<div class="input-group">
+<label for="monthlyRent">월 임대료 (원)</label>
+<input type="number" id="monthlyRent" value="500000" min="0" step="10000" onchange="updateTemplate()">
+</div>
+<div class="input-group">
+<label for="unpaidAmount">미납 합계 (원)</label>
+<input type="number" id="unpaidAmount" value="500000" min="0" step="10000">
+</div>
+<div class="input-group">
+<label for="dueDate">납부 기한</label>
+<input type="date" id="dueDate">
+</div>
+<div class="input-group">
+<label for="bankAccount">납부 계좌</label>
+<input type="text" id="bankAccount" placeholder="국민은행 123-456-7890 (예금주: 홍길동)">
+</div>
+</div>
+
+<div class="card">
+<h2>6. 미리보기</h2>
+<div class="preview" id="preview"></div>
+<div style="margin-top: 20px; text-align: center;">
+<button class="btn" onclick="downloadPDF()">PDF 다운로드</button>
+<button class="btn btn-secondary" onclick="window.print()">인쇄하기</button>
+</div>
+</div>
+
+<div class="footer">
+<p>렌트노티스 v1.0 — 본 문서는 표준 서식에 따른 초안입니다.</p>
+<p>구체적 법적 분쟁 시 법률 전문가의 조력을 권장합니다.</p>
+</div>
+</div>
+
+<script>
+function updateTemplate() {
+  const situation = document.getElementById('situation').value;
+  const stage = document.getElementById('stage').value;
+  const landlordName = document.getElementById('landlordName').value || '홍길동';
+  const landlordAddr = document.getElementById('landlordAddr').value || '서울특별시 강남구 테헤란로 123, 456호';
+  const tenantName = document.getElementById('tenantName').value || '김철수';
+  const tenantAddr = document.getElementById('tenantAddr').value || '서울특별시 강남구 테헤란로 123, 456호';
+  const propertyAddr = document.getElementById('propertyAddr').value || '서울특별시 강남구 테헤란로 123, 456호';
+  const unpaidMonths = parseInt(document.getElementById('unpaidMonths').value) || 1;
+  const monthlyRent = parseInt(document.getElementById('monthlyRent').value) || 500000;
+  const unpaidAmount = parseInt(document.getElementById('unpaidAmount').value) || monthlyRent * unpaidMonths;
+  const dueDate = document.getElementById('dueDate').value || new Date().toISOString().split('T')[0];
+  const bankAccount = document.getElementById('bankAccount').value || '국민은행 123-456-7890 (예금주: 홍길동)';
+
+  const today = new Date();
+  const dateStr = today.getFullYear() + '년 ' + (today.getMonth()+1) + '월 ' + today.getDate() + '일';
+
+  let lawText = '';
+  let stageText = '';
+  
+  if (situation === '주택') {
+    lawText = '주택임대차보호법 제6조의3, 민법 제640조';
+    if (stage === '1') {
+      stageText = '1단계 경고: 1회 미납 독촉';
+    } else if (stage === '2') {
+      stageText = '2단계 최종 경고: 계약 해지 예고';
+    } else {
+      stageText = '3단계: 계약 해지 및 명도 요구';
+    }
+  } else {
+    lawText = '상가임대차보호법 제11조, 민법 제640조';
+    if (stage === '1') {
+      stageText = '1단계 경고: 1회 미납 독촉';
+    } else if (stage === '2') {
+      stageText = '2단계 최종 경고: 계약 해지 예고';
+    } else {
+      stageText = '3단계: 계약 해지 및 명도 요구';
+    }
+  }
+
+  const content = `[내용증명]
+
+발신인: ${landlordName}
+주소: ${landlordAddr}
+
+수신인: ${tenantName}
+주소: ${tenantAddr}
+
+제목: 임대료 미납 내용증명 (${stageText})
+
+${situation}임대차 목적물: ${propertyAddr}
+
+상기 부동산에 대한 임대차 계약과 관련하여, 아래와 같이 임대료 미납이 발생하였으므로 이에 대한 납부를 촉구합니다.
+
+1. 미납 내역
+- 미납 월수: ${unpaidMonths}개월
+- 월 임대료: ${monthlyRent.toLocaleString()}원
+- 미납 합계: ${unpaidAmount.toLocaleString()}원
+
+2. 납부 기한
+- ${dueDate}까지 납부해 주시기 바랍니다.
+
+3. 납부 계좌
+- ${bankAccount}
+
+4. 법적 근거
+- ${lawText}
+
+5. 향후 조치
+- 위 기한 내에 납부하지 않을 경우, 임대차 계약 해지 및 법적 조치에 나설 예정입니다.
+
+${dateStr}
+
+발신인: ${landlordName} (인)`;
+
+  document.getElementById('preview').textContent = content;
+}
+
+function downloadPDF() {
+  const content = document.getElementById('preview').textContent;
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'rent-notice.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// 초기 렌더링
+updateTemplate();
+</script>
+</body>
+</html>
