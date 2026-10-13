@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>지식 스파크 (Spark) — 10조 자산가의 실전 비즈니스 & 소프트웨어</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>body { font-family: 'Pretendard', sans-serif; }</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-amber-500 font-black text-2xl tracking-tight">SPARK</span>
+                <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded font-semibold">10조 그룹 직영</span>
+            </div>
+            <div class="text-xs text-slate-400">플랫폼 수수료 0% · 지식 직거래</div>
+        </div>
+    </header>
+
+    <section class="max-w-4xl mx-auto px-4 py-16 text-center space-y-6">
+        <div class="inline-block bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3.5 py-1 rounded-full text-xs font-bold tracking-wide">
+            크몽·클래스101 1등 초월 무자본 생태계
+        </div>
+        <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+            20년 건축사의 실무 무기와<br>
+            <span class="text-amber-400">10조 자산 증식 시스템</span>을 직거래합니다
+        </h1>
+        <p class="text-slate-400 text-base md:text-lg max-w-2xl mx-auto">
+            중개 수수료 20%를 걷어내고, 실제 현장에서 검증된 토지 사업성 진단 알고리즘과 100만 자 실전 도서 원고 및 소스코드를 완전 공개합니다.
+        </p>
+
+        <div class="bg-slate-900 border border-slate-800 p-6 md:p-8 rounded-2xl max-w-lg mx-auto shadow-2xl space-y-4">
+            <div class="text-left">
+                <h3 class="text-base font-bold text-white">《사업성 검토 프로그램 개발기》 무료 배포</h3>
+                <p class="text-xs text-slate-400 mt-1">이메일을 남겨주시면 1권 핵심 챕터 PDF와 파이썬 코어 엔진 소스코드를 즉시 보내드립니다.</p>
+            </div>
+            <form action="mailto:afrontier.us@gmail.com" method="POST" enctype="text/plain" class="flex gap-2">
+                <input type="email" name="email" placeholder="이메일 주소 입력" required class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
+                <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-5 py-3 rounded-xl text-sm transition">
+                    무료 수령
+                </button>
+            </form>
+            <div class="text-[11px] text-slate-500 text-left">* 스팸 없이 가치 있는 콘텐츠만 전송합니다 (문의: afrontier.us@gmail.com)</div>
+        </div>
+    </section>
+
+    <section class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl space-y-6">
+            <div class="border-b border-slate-800 pb-4">
+                <span class="text-xs font-semibold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20">실시간 무료 체험</span>
+                <h2 class="text-xl font-bold text-white mt-2">AI 토지 개발 & 리모델링 30초 사업성 간이 계산기</h2>
+                <p class="text-xs text-slate-400 mt-1">밸류맵 30만 원 상당 유료 리포트 로직을 무료 웹앱으로 직접 실행해보세요.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">대지면적 (평)</label>
+                    <input type="number" id="calcArea" value="100" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">용도지역</label>
+                    <select id="calcZone" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
+                        <option value="제1종일반주거">제1종일반주거 (용적률 150%)</option>
+                        <option value="제2종일반주거" selected>제2종일반주거 (용적률 200%)</option>
+                        <option value="제3종일반주거">제3종일반주거 (용적률 250%)</option>
+                        <option value="준주거">준주거 (용적률 400%)</option>
+                        <option value="일반상업">일반상업 (용적률 800%)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">접도 폭 (m)</label>
+                    <input type="number" id="calcRoad" value="6" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">개발 목표</label>
+                    <select id="calcUse" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
+                        <option value="호텔/게스트하우스" selected>호텔/게스트하우스 (리모델링)</option>
+                        <option value="오피스/공유오피스">오피스/공유오피스</option>
+                        <option value="근린생활시설">근린생활시설</option>
+                        <option value="주거/다세대">주거/다세대</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="runCalc()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold py-2.5 rounded-lg text-sm transition">
+                사업성 즉시 계산
+            </button>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center pt-2">
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="text-[11px] text-slate-400">건축연면적</div>
+                    <div id="outArea" class="text-base font-bold text-amber-400 mt-0.5">200 평</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="text-[11px] text-slate-400">총사업비</div>
+                    <div id="outCost" class="text-base font-bold text-white mt-0.5">21.6 억</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="text-[11px] text-slate-400">순영업소득(NOI)</div>
+                    <div id="outNOI" class="text-base font-bold text-emerald-400 mt-0.5">4.3 억</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                    <div class="text-[11px] text-slate-400">추정 IRR</div>
+                    <div id="outIRR" class="text-base font-bold text-amber-400 mt-0.5">28.9 %</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-6xl mx-auto px-4 py-16">
+        <h2 class="text-2xl font-bold text-white text-center mb-10">10조 생태계 핵심 상품 라인업</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition">
+                <div class="space-y-3">
+                    <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">실전 기술 서적 (100만 자)</span>
+                    <h3 class="text-lg font-bold text-white">사업성 검토 프로그램 개발기</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        20년 건축사가 AI 에이전트로 밸류맵을 초월하는 자동화 무기를 만든 치열한 기록. 파이썬 소스코드 100% 완전 공개.
+                    </p>
+                </div>
+                <div class="pt-6 border-t border-slate-800/80 mt-6 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-slate-500">사전예약 특가</div>
+                        <div class="text-lg font-black text-white">29,000원</div>
+                    </div>
+                    <a href="mailto:afrontier.us@gmail.com?subject=[구매신청] 도서 1권 사업성 검토 프로그램 개발기" class="bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-400 text-xs font-bold px-4 py-2 rounded-lg border border-amber-500/20 transition">
+                        직거래 신청
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition">
+                <div class="space-y-3">
+                    <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">B2B SaaS 엔진</span>
+                    <h3 class="text-lg font-bold text-white">AI 프롭테크 사업성 자동 검토기</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        공공데이터 15종 연동, 법규 자동 파싱, 3D 볼륨 스터디, 수지분석 엑셀 원클릭 익스포트 디벨로퍼 전용 솔루션.
+                    </p>
+                </div>
+                <div class="pt-6 border-t border-slate-800/80 mt-6 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-slate-500">얼리버드 라이선스</div>
+                        <div class="text-lg font-black text-white">월 49,000원</div>
+                    </div>
+                    <a href="mailto:afrontier.us@gmail.com?subject=[도입문의] AI 프롭테크 솔루션 B2B" class="bg-emerald-500/10 hover:bg-emerald-500 hover:text-slate-950 text-emerald-400 text-xs font-bold px-4 py-2 rounded-lg border border-emerald-500/20 transition">
+                        도입 문의
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition">
+                <div class="space-y-3">
+                    <span class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">생애 관리 OS</span>
+                    <h3 class="text-lg font-bold text-white">10조 GPS 라이프 OS</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        10조 자산 증식 4단계 로드맵 달성을 위한 마인드셋, 일일 루틴, 시간 관리, 지식 백업 통합 자동화 프로그램.
+                    </p>
+                </div>
+                <div class="pt-6 border-t border-slate-800/80 mt-6 flex justify-between items-center">
+                    <div>
+                        <div class="text-xs text-slate-500">베타 멤버십</div>
+                        <div class="text-lg font-black text-white">월 9,900원</div>
+                    </div>
+                    <a href="mailto:afrontier.us@gmail.com?subject=[대기등록] 10조 GPS 라이프 OS" class="bg-indigo-500/10 hover:bg-indigo-500 hover:text-white text-indigo-400 text-xs font-bold px-4 py-2 rounded-lg border border-indigo-500/20 transition">
+                        대기자 등록
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="border-t border-slate-800 py-12 text-center text-xs text-slate-500 space-y-2">
+        <p>© 2026 지식 스파크 (Spark) · 10조 그룹 전략기획실 직영 운영</p>
+        <p>문의 및 주문: afrontier.us@gmail.com · 추가 비용 0원 순수 독립 인프라</p>
+    </footer>
+
+    <script>
+        const zoneFars = { "제1종일반주거": 1.5, "제2종일반주거": 2.0, "제3종일반주거": 2.5, "준주거": 4.0, "일반상업": 8.0 };
+        const useCosts = {
+            "호텔/게스트하우스": { c: 9500000, r: 220000 },
+            "오피스/공유오피스": { c: 8500000, r: 160000 },
+            "근린생활시설": { c: 8000000, r: 140000 },
+            "주거/다세대": { c: 7500000, r: 110000 }
+        };
+
+        function runCalc() {
+            const area = parseFloat(document.getElementById('calcArea').value) || 0;
+            const zone = document.getElementById('calcZone').value;
+            const use = document.getElementById('calcUse').value;
+
+            const far = zoneFars[zone] || 2.0;
+            const cost = useCosts[use] || { c: 8000000, r: 130000 };
+
+            const totalArea = Math.round(area * far);
+            const totalCost = Math.round(totalArea * cost.c * 1.14);
+            const grossRent = totalArea * cost.r * 12;
+            const noi = Math.round(grossRent * 0.82);
+            const irr = totalCost > 0 ? (((noi / totalCost) * 100) * 1.45).toFixed(1) : 0;
+
+            document.getElementById('outArea').innerText = totalArea + ' 평';
+            document.getElementById('outCost').innerText = (totalCost / 100000000).toFixed(1) + ' 억';
+            document.getElementById('outNOI').innerText = (noi / 100000000).toFixed(1) + ' 억';
+            document.getElementById('outIRR').innerText = irr + ' %';
+        }
+    </script>
+</body>
+</html>

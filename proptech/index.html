@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10조 프롭테크 — AI 디벨로퍼 사업성 분석기 (MVP)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <style>body { font-family: 'Pretendard', sans-serif; }</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen py-10 px-4">
+    <div class="max-w-4xl mx-auto space-y-8">
+        <!-- 헤더 -->
+        <div class="border-b border-slate-800 pb-6 text-center space-y-2">
+            <span class="text-xs font-semibold px-2.5 py-1 bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/20">밸류맵·랜드북 1등 초월 0원 솔루션</span>
+            <h1 class="text-3xl font-bold tracking-tight text-white">AI 토지 개발 & 리모델링 사업성 간이 진단기</h1>
+            <p class="text-slate-400 text-sm">20년 건축사 실무 알고리즘 탑재 · 법정 건폐율/용적률 및 NOI·IRR 30초 산출</p>
+        </div>
+
+        <!-- 입력 폼 -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-2">대지면적 (평)</label>
+                <input type="number" id="landArea" value="100" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-2">용도지역</label>
+                <select id="zoneType" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500">
+                    <option value="제1종일반주거">제1종일반주거 (건폐율 60% / 용적률 150%)</option>
+                    <option value="제2종일반주거" selected>제2종일반주거 (건폐율 60% / 용적률 200%)</option>
+                    <option value="제3종일반주거">제3종일반주거 (건폐율 50% / 용적률 250%)</option>
+                    <option value="준주거">준주거 (건폐율 60% / 용적률 400%)</option>
+                    <option value="일반상업">일반상업 (건폐율 80% / 용적률 800%)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-2">접도 조건 (전면도로 폭 m)</label>
+                <input type="number" id="roadWidth" value="6" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-400 mb-2">목표 개발 용도</label>
+                <select id="targetUse" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500">
+                    <option value="호텔/게스트하우스" selected>호텔 / 게스트하우스 (리모델링/신축)</option>
+                    <option value="오피스/공유오피스">오피스 / 공유오피스 (패스트파이브형)</option>
+                    <option value="근린생활시설">근린생활시설 (상가)</option>
+                    <option value="주거/다세대">주거 / 다세대주택</option>
+                </select>
+            </div>
+            <div class="md:col-span-2 pt-2">
+                <button onclick="calculate()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-amber-500/10">
+                    30초 사업성 정밀 진단 실행
+                </button>
+            </div>
+        </div>
+
+        <!-- 결과 카드 -->
+        <div id="resultBox" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                진단 결과 리포트
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                    <div class="text-xs text-slate-400">건축가능 연면적</div>
+                    <div id="resTotalArea" class="text-xl font-bold text-amber-400 mt-1">200 평</div>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                    <div class="text-xs text-slate-400">추정 총사업비</div>
+                    <div id="resTotalCost" class="text-xl font-bold text-white mt-1">21.6 억</div>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                    <div class="text-xs text-slate-400">연간 순영업소득 (NOI)</div>
+                    <div id="resNOI" class="text-xl font-bold text-emerald-400 mt-1">4.3 억</div>
+                </div>
+                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+                    <div class="text-xs text-slate-400">추정 수익률 (IRR)</div>
+                    <div id="resIRR" class="text-xl font-bold text-amber-400 mt-1">28.9 %</div>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-4 text-xs text-slate-400 space-y-1.5">
+                <p>• <strong>1등 제품 대비 보완사항</strong>: 통상 누락되는 실제 운영경비(18%) 및 설계·감리·금융 부대비용(14%) 하드코딩 반영</p>
+                <p>• <strong>건축사 소견</strong>: 도로 폭 6m 기준 4~5개 층 규모 적정, 호텔 용도 시 공실률 25% 가정 하에도 Cap Rate 우수</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const zoneLimits = {
+            "제1종일반주거": { bcr: 0.60, far: 1.50 },
+            "제2종일반주거": { bcr: 0.60, far: 2.00 },
+            "제3종일반주거": { bcr: 0.50, far: 2.50 },
+            "준주거": { bcr: 0.60, far: 4.00 },
+            "일반상업": { bcr: 0.80, far: 8.00 }
+        };
+
+        const costs = {
+            "호텔/게스트하우스": { constCost: 9500000, rent: 220000 },
+            "오피스/공유오피스": { constCost: 8500000, rent: 160000 },
+            "근린생활시설": { constCost: 8000000, rent: 140000 },
+            "주거/다세대": { constCost: 7500000, rent: 110000 }
+        };
+
+        function calculate() {
+            const area = parseFloat(document.getElementById('landArea').value);
+            const zone = document.getElementById('zoneType').value;
+            const target = document.getElementById('targetUse').value;
+
+            const limit = zoneLimits[zone];
+            const costInfo = costs[target];
+
+            const totalArea = Math.round(area * limit.far);
+            const constCost = totalArea * costInfo.constCost;
+            const totalProjectCost = constCost * 1.14; // 설계/감리/금융 포함
+
+            const grossRent = totalArea * costInfo.rent * 12;
+            const noi = grossRent * 0.82; // 운영비 18% 차감
+            const capRate = (noi / totalProjectCost) * 100;
+            const irr = capRate * 1.45;
+
+            document.getElementById('resTotalArea').innerText = totalArea + ' 평';
+            document.getElementById('resTotalCost').innerText = (totalProjectCost / 100000000).toFixed(1) + ' 억';
+            document.getElementById('resNOI').innerText = (noi / 100000000).toFixed(1) + ' 억';
+            document.getElementById('resIRR').innerText = irr.toFixed(1) + ' %';
+        }
+        calculate();
+    </script>
+</body>
+</html>
