@@ -170,9 +170,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans K
 <div class="desc">NVIDIA NIM API 기반 AI 세무 상담. API 키 없이도 기본 상담이 가능합니다.</div>
 
 <div class="input-group">
-<label for="groqApiKey">Groq API 키 (선택) — 없어도 기본 상담 가능</label>
-<input type="password" id="groqApiKey" placeholder="gsk_... (console.groq.com에서 무료 발급)" onchange="saveGroqKey()">
-<div style="font-size:.85em;color:#888;margin-top:4px">키는 브라우저에만 저장되며 서버로 전송되지 않습니다. 무료 한도: 30 req/min, 1,000 req/day. 카드 등록 불필요.</div>
+<label for="nimApiKey">NVIDIA NIM API 키 (선택) — 없어도 기본 상담 가능</label>
+<input type="password" id="nimApiKey" placeholder="nvapi-... (build.nvidia.com에서 무료 발급)" onchange="saveNimKey()">
+<div style="font-size:.85em;color:#888;margin-top:4px">키는 브라우저에만 저장되며 서버로 전송되지 않습니다. 무료 1,000 크레딧, 카드 등록 불필요.</div>
 </div>
 
 <div class="input-group">
@@ -194,24 +194,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans K
 </div>
 
 <script>
-// 10조 AI 클라이언트 — 추가비용 0원, 실제 동작
-// 우선순위: Groq API (무료, 카드등록불필요) → 로컬 규칙 (오프라인)
-// Groq 무료 한도: 30 req/min, 1,000 req/day, 200K tokens/day
-// API 키 발급: https://console.groq.com (무료, 카드등록불필요)
+// 10조 AI 클라이언트 — NVIDIA NIM API (추가비용 0원)
+// 우선순위: NVIDIA NIM (무료 크레딧) → 로컬 규칙 (오프라인)
+// 무료 크레딧: 1,000 (최대 5,000까지 요청 가능)
+// 카드 등록 불필요
 
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const NIM_MODEL = 'meta/llama-3.2-11b-vision-instruct';
+const NIM_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 
-function getGroqKey() {
-  return localStorage.getItem('groq_api_key') || '';
+function getNimKey() {
+  return localStorage.getItem('nim_api_key') || '';
 }
 
-function saveGroqKey() {
-  const key = document.getElementById('groqApiKey').value.trim();
+function saveNimKey() {
+  const key = document.getElementById('nimApiKey').value.trim();
   if (key) {
-    localStorage.setItem('groq_api_key', key);
+    localStorage.setItem('nim_api_key', key);
   } else {
-    localStorage.removeItem('groq_api_key');
+    localStorage.removeItem('nim_api_key');
   }
 }
 
@@ -232,18 +232,18 @@ async function askAI() {
     { role: 'user', content: question }
   ];
 
-  // 1순위: Groq API (무료, 카드등록불필요)
-  const apiKey = getGroqKey();
+  // 1순위: NVIDIA NIM API (무료 크레딧)
+  const apiKey = getNimKey();
   if (apiKey) {
     try {
-      const resp = await fetch(GROQ_URL, {
+      const resp = await fetch(NIM_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: GROQ_MODEL,
+          model: NIM_MODEL,
           messages,
           temperature: 0.3,
           max_tokens: 1024
@@ -254,14 +254,14 @@ async function askAI() {
         const data = await resp.json();
         const text = data.choices?.[0]?.message?.content || '응답을 받지 못했습니다.';
         answerDiv.textContent = text;
-        sourceDiv.textContent = `응답 소스: Groq API (무료) · 모델: ${GROQ_MODEL}`;
+        sourceDiv.textContent = `응답 소스: NVIDIA NIM (무료) · 모델: ${NIM_MODEL}`;
         return;
       } else {
         const err = await resp.json().catch(() => ({}));
-        console.warn('Groq API 오류:', resp.status, err);
+        console.warn('NVIDIA NIM 오류:', resp.status, err);
       }
     } catch (e) {
-      console.warn('Groq API 실패:', e.message);
+      console.warn('NVIDIA NIM 실패:', e.message);
     }
   }
 
