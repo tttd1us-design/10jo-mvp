@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>세노매니저 — 세금·노무 할 일 알림</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;background:#f5f7fa;color:#333;line-height:1.6}
+.container{max-width:960px;margin:0 auto;padding:20px}
+.header{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:16px;margin-bottom:24px}
+.header h1{font-size:2em;margin-bottom:10px}
+.header p{font-size:1.05em;opacity:.92}
+.card{background:#fff;border-radius:12px;padding:28px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.card h2{font-size:1.2em;margin-bottom:16px;color:#1a1a1a}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-weight:600;margin-bottom:6px;color:#555}
+.input-group input,.input-group select{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:1em}
+.input-group input:focus,.input-group select:focus{outline:none;border-color:#667eea}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.result{background:#f0f4ff;border-left:4px solid #667eea;padding:20px;border-radius:8px;margin-top:16px}
+.result h3{color:#667eea;margin-bottom:10px}
+.dday{display:inline-block;padding:4px 12px;border-radius:6px;font-weight:600;font-size:.9em}
+.dday.urgent{background:#f8d7da;color:#721c24}
+.dday.warning{background:#fff3cd;color:#856404}
+.dday.safe{background:#d4edda;color:#155724}
+.todo-item{display:flex;align-items:center;padding:14px 0;border-bottom:1px solid #f0f0f0}
+.todo-item:last-child{border-bottom:none}
+.todo-item .icon{font-size:1.5em;margin-right:12px}
+.todo-item .content{flex:1}
+.todo-item .title{font-weight:600}
+.todo-item .date{font-size:.85em;color:#888}
+.todo-item .dday{margin-left:12px}
+.calc-result{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:16px}
+.calc-item{background:#f9f9f9;padding:16px;border-radius:8px;text-align:center}
+.calc-item .label{font-size:.85em;color:#888;margin-bottom:4px}
+.calc-item .value{font-size:1.3em;font-weight:700;color:#333}
+.calc-item .value.highlight{color:#667eea}
+.btn{display:inline-block;padding:14px 32px;background:#667eea;color:#fff;border:none;border-radius:8px;font-size:1.1em;font-weight:600;cursor:pointer;margin-top:16px}
+.btn:hover{background:#5a6fd6}
+.btn-secondary{background:#6c757d}
+.btn-secondary:hover{background:#5a6268}
+.alert-setup{background:#d4edda;border-left:4px solid #28a745;padding:16px;border-radius:8px;margin-top:16px;display:none}
+.alert-setup.show{display:block}
+.alert-setup h4{color:#155724;margin-bottom:8px}
+.alert-setup ul{margin-left:20px}
+.alert-setup li{margin-bottom:4px}
+.price-card{background:#f9f9f9;padding:20px;border-radius:10px;text-align:center;margin-bottom:16px}
+.price-card .plan{font-size:1.1em;font-weight:700;color:#667eea;margin-bottom:8px}
+.price-card .price{font-size:2em;font-weight:700;color:#333}
+.price-card .period{font-size:.9em;color:#888}
+.price-card .features{margin-top:12px;text-align:left}
+.price-card .features li{margin-bottom:4px;font-size:.9em}
+.footer{text-align:center;padding:30px;color:#999;font-size:.9em}
+@media(max-width:768px){.input-row{grid-template-columns:1fr}.calc-result{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>세노매니저</h1>
+<p>이번 달 세무·노무 할 일을 자동으로 알려드립니다</p>
+</div>
+
+<div class="card">
+<h2>1. 사업자 정보</h2>
+<div class="input-row">
+<div class="input-group">
+<label for="bizNumber">사업자 등록번호</label>
+<input type="text" id="bizNumber" placeholder="123-45-67890" oninput="calculate()">
+</div>
+<div class="input-group">
+<label for="taxType">과세 유형</label>
+<select id="taxType" onchange="calculate()">
+<option value="간이">간이과세자 (연 매출 1.4억 미만)</option>
+<option value="일반">일반과세자 (연 매출 1.4억 이상)</option>
+</select>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>2. 이번 달 세무·노무 할 일</h2>
+<div class="result" id="todoList">
+<h3>세무 일정</h3>
+<div id="todoItems">
+<div class="todo-item">
+<div class="icon">📋</div>
+<div class="content">
+<div class="title">부가세 예정신고</div>
+<div class="date">10월 25일까지</div>
+</div>
+<span class="dday warning">D-12</span>
+</div>
+<div class="todo-item">
+<div class="icon">📋</div>
+<div class="content">
+<div class="title">4대보험 신고</div>
+<div class="date">10월 31일까지</div>
+</div>
+<span class="dday safe">D-18</span>
+</div>
+<div class="todo-item">
+<div class="icon">📋</div>
+<div class="content">
+<div class="title">종합소득세 예정신고</div>
+<div class="date">11월 25일까지</div>
+</div>
+<span class="dday safe">D-43</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>3. 세금 계산기</h2>
+<div class="input-row">
+<div class="input-group">
+<label for="monthlyRevenue">월 매출 (원)</label>
+<input type="number" id="monthlyRevenue" value="10000000" min="0" step="100000" oninput="calculate()">
+</div>
+<div class="input-group">
+<label for="monthlyPurchase">월 매입 (원)</label>
+<input type="number" id="monthlyPurchase" value="6000000" min="0" step="100000" oninput="calculate()">
+</div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label for="laborCost">월 인건비 (원)</label>
+<input type="number" id="laborCost" value="2000000" min="0" step="100000" oninput="calculate()">
+</div>
+<div class="input-group">
+<label for="employeeCount">직원 수</label>
+<input type="number" id="employeeCount" value="2" min="0" step="1" oninput="calculate()">
+</div>
+</div>
+
+<div class="calc-result" id="calcResult">
+<div class="calc-item">
+<div class="label">예상 부가세</div>
+<div class="value" id="vatAmount">—</div>
+</div>
+<div class="calc-item">
+<div class="label">예상 종합소득세</div>
+<div class="value" id="incomeTax">—</div>
+</div>
+<div class="calc-item">
+<div class="label">4대보험료</div>
+<div class="value" id="insurance">—</div>
+</div>
+<div class="calc-item">
+<div class="label">실수령액</div>
+<div class="value highlight" id="netIncome">—</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>4. 신고 알림 설정</h2>
+<p style="margin-bottom:16px;color:#666">신고 기한 7일 전, 3일 전, 1일 전에 알림을 보내드립니다.</p>
+<div class="input-group">
+<label for="alertEmail">이메일 주소</label>
+<input type="email" id="alertEmail" placeholder="example@email.com">
+</div>
+<button class="btn" onclick="setupAlert()">알림 설정하기</button>
+
+<div class="alert-setup" id="alertSetup">
+<h4>알림 설정 완료</h4>
+<ul>
+<li>부가세 예정신고: 10월 18일, 22일, 24일 알림</li>
+<li>4대보험 신고: 10월 24일, 28일, 30일 알림</li>
+<li>종합소득세: 11월 18일, 22일, 24일 알림</li>
+</ul>
+</div>
+</div>
+
+<div class="card">
+<h2>5. 요금제</h2>
+<div class="price-card">
+<div class="plan">월 구독</div>
+<div class="price">9,900원</div>
+<div class="period">/월 (부가세 별도)</div>
+<ul class="features">
+<li>세무 일정 자동 알림 (이메일)</li>
+<li>세금 계산기 (부가세, 종합소득세, 4대보험)</li>
+<li>신고 기한 D-DAY 표시</li>
+<li>카카오톡 알림톡 (월 100건 무료)</li>
+</ul>
+<button class="btn" onclick="alert('결제 페이지로 이동합니다.')">시작하기</button>
+</div>
+</div>
+
+<div class="footer">
+<p>세노매니저 v1.0 — 계산 결과는 예상치이며 실제 세금과 다를 수 있습니다. 세무 신고 대행은 하지 않습니다.</p>
+</div>
+</div>
+
+<script>
+function calculate(){
+const revenue=parseFloat(document.getElementById('monthlyRevenue').value)||0;
+const purchase=parseFloat(document.getElementById('monthlyPurchase').value)||0;
+const labor=parseFloat(document.getElementById('laborCost').value)||0;
+const employees=parseFloat(document.getElementById('employeeCount').value)||0;
+const taxType=document.getElementById('taxType').value;
+
+// 부가세 계산
+const vatRate=taxType==='간이'?0.03:0.1;
+const vatAmount=Math.round(revenue*vatRate);
+
+// 종합소득세 계산 (간소화)
+const taxableIncome=Math.max(0,revenue-purchase-labor);
+const incomeTax=Math.round(taxableIncome*0.06);
+
+// 4대보험료 계산 (간소화)
+const insurancePerEmployee=Math.round(labor*0.09/employees)||0;
+const totalInsurance=insurancePerEmployee*employees;
+
+// 실수령액
+const netIncome=revenue-purchase-labor-vatAmount-incomeTax-totalInsurance;
+
+document.getElementById('vatAmount').textContent=vatAmount.toLocaleString()+'원';
+document.getElementById('incomeTax').textContent=incomeTax.toLocaleString()+'원';
+document.getElementById('insurance').textContent=totalInsurance.toLocaleString()+'원';
+document.getElementById('netIncome').textContent=netIncome.toLocaleString()+'원';
+}
+
+function setupAlert(){
+const email=document.getElementById('alertEmail').value;
+if(!email||!email.includes('@')){
+alert('올바른 이메일 주소를 입력해주세요.');
+return;
+}
+document.getElementById('alertSetup').classList.add('show');
+alert('알림 설정이 완료되었습니다.');
+}
+
+calculate();
+</script>
+</body>
+</html>
