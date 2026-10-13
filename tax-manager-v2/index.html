@@ -165,10 +165,90 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans K
 <button class="btn btn-full" onclick="alert('무료로 시작합니다.')">무료로 시작하기</button>
 </div>
 
+<div class="card">
+<h2>5. AI 세무 상담 <span class="badge green">NEW</span></h2>
+<div class="desc">NVIDIA NIM API 기반 AI 세무 상담. API 키 없이도 기본 상담이 가능합니다.</div>
+
+<div class="input-group">
+<label for="nimApiKey">NVIDIA NIM API 키 (선택) — 없어도 기본 상담 가능</label>
+<input type="password" id="nimApiKey" placeholder="nvapi-... (build.nvidia.com에서 무료 발급)" onchange="saveKey()">
+<div style="font-size:.85em;color:#888;margin-top:4px">키는 브라우저에만 저장되며 서버로 전송되지 않습니다. 무료 1,000 크레딧 제공.</div>
+</div>
+
+<div class="input-group">
+<label for="taxQuestion">세무 질문</label>
+<textarea id="taxQuestion" rows="3" placeholder="예: 프리랜서인데 연소득 3천만원이면 환급 얼마나 받을 수 있나요?"></textarea>
+</div>
+<button class="btn" onclick="askAI()">AI 상담 받기</button>
+
+<div id="aiResult" class="result" style="display:none;margin-top:20px">
+<h3>AI 상담 결과</h3>
+<div id="aiAnswer" style="white-space:pre-wrap;line-height:1.8"></div>
+<div id="aiSource" style="font-size:.8em;color:#888;margin-top:12px"></div>
+</div>
+</div>
+
 <div class="footer">
 <p>세노매니저 v2.0 — 계산 결과는 예상치입니다. 세무 신고 대행은 하지 않으며, 모든 계산은 브라우저 안에서만 실행됩니다.</p>
 </div>
 </div>
+
+<script src="../_shared/nvidia-nim-client.js"></script>
+<script>
+// NIM 클라이언트 초기화
+let nimClient = null;
+
+function initNIM() {
+  const key = localStorage.getItem('nim_api_key') || '';
+  document.getElementById('nimApiKey').value = key;
+  nimClient = new NIMClient({ apiKey: key });
+}
+
+function saveKey() {
+  const key = document.getElementById('nimApiKey').value.trim();
+  if (key) {
+    localStorage.setItem('nim_api_key', key);
+  } else {
+    localStorage.removeItem('nim_api_key');
+  }
+  nimClient = new NIMClient({ apiKey: key });
+}
+
+async function askAI() {
+  const question = document.getElementById('taxQuestion').value.trim();
+  if (!question) { alert('질문을 입력하세요.'); return; }
+  
+  const resultDiv = document.getElementById('aiResult');
+  const answerDiv = document.getElementById('aiAnswer');
+  const sourceDiv = document.getElementById('aiSource');
+  
+  resultDiv.style.display = 'block';
+  answerDiv.textContent = 'AI가 답변을 생성 중입니다...';
+  sourceDiv.textContent = '';
+  
+  try {
+    const response = await nimClient.chat({
+      messages: [
+        { role: 'system', content: '당신은 한국 세무 전문가입니다. 세무 관련 질문에 정확하고 실용적으로 답변하세요. 세무 신고 대행은 하지 않으며, 계산 결과는 예상치임을 명시하세요.' },
+        { role: 'user', content: question }
+      ],
+      model: 'meta/llama-3.3-70b-instruct',
+      temperature: 0.3,
+      maxTokens: 1024
+    });
+    
+    answerDiv.textContent = response.text;
+    const sourceLabel = response.source === 'nim' ? 'NVIDIA NIM (Llama 3.3 70B)' : 
+                       response.source === 'local' ? '로컬 규칙 기반 (API 키 없음)' : '기본 응답';
+    sourceDiv.textContent = `응답 소스: ${sourceLabel} · 토큰: ${response.usage?.totalTokens || 0}`;
+  } catch (e) {
+    answerDiv.textContent = '오류가 발생했습니다: ' + e.message;
+    sourceDiv.textContent = '';
+  }
+}
+
+initNIM();
+</script>
 
 <script>
 function calc(){
