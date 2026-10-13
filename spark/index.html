@@ -89,25 +89,26 @@
             </button>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center pt-2">
-                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                    <div class="text-[11px] text-slate-400">건축연면적</div>
-                    <div id="outArea" class="text-base font-bold text-amber-400 mt-0.5">200 평</div>
-                </div>
-                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                    <div class="text-[11px] text-slate-400">총사업비</div>
-                    <div id="outCost" class="text-base font-bold text-white mt-0.5">21.6 억</div>
-                </div>
-                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                    <div class="text-[11px] text-slate-400">순영업소득(NOI)</div>
-                    <div id="outNOI" class="text-base font-bold text-emerald-400 mt-0.5">4.3 억</div>
-                </div>
-                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                    <div class="text-[11px] text-slate-400">추정 IRR</div>
-                    <div id="outIRR" class="text-base font-bold text-amber-400 mt-0.5">28.9 %</div>
-                </div>
-            </div>
-        </div>
-    </section>
+                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                <div class="text-[11px] text-slate-400">건축연면적</div>
+                                <div id="outArea" class="text-base font-bold text-amber-400 mt-0.5">200 평</div>
+                            </div>
+                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                <div class="text-[11px] text-slate-400">총사업비</div>
+                                <div id="outCost" class="text-base font-bold text-white mt-0.5">21.6 억</div>
+                            </div>
+                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                <div class="text-[11px] text-slate-400">순영업소득(NOI)</div>
+                                <div id="outNOI" class="text-base font-bold text-emerald-400 mt-0.5">4.3 억</div>
+                            </div>
+                            <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                <div class="text-[11px] text-slate-400">추정 IRR</div>
+                                <div id="outIRR" class="text-base font-bold text-amber-400 mt-0.5">28.9 %</div>
+                            </div>
+                        </div>
+                        <div id="roadOpinion"></div>
+                    </div>
+                </section>
 
     <section class="max-w-6xl mx-auto px-4 py-16">
         <h2 class="text-2xl font-bold text-white text-center mb-10">10조 생태계 핵심 상품 라인업</h2>
@@ -177,33 +178,52 @@
     </footer>
 
     <script>
-        const zoneFars = { "제1종일반주거": 1.5, "제2종일반주거": 2.0, "제3종일반주거": 2.5, "준주거": 4.0, "일반상업": 8.0 };
-        const useCosts = {
-            "호텔/게스트하우스": { c: 9500000, r: 220000 },
-            "오피스/공유오피스": { c: 8500000, r: 160000 },
-            "근린생활시설": { c: 8000000, r: 140000 },
-            "주거/다세대": { c: 7500000, r: 110000 }
-        };
+            const zoneFars = { "제1종일반주거": 1.5, "제2종일반주거": 2.0, "제3종일반주거": 2.5, "준주거": 4.0, "일반상업": 8.0 };
+            const useCosts = {
+                "호텔/게스트하우스": { c: 9500000, r: 220000 },
+                "오피스/공유오피스": { c: 8500000, r: 160000 },
+                "근린생활시설": { c: 8000000, r: 140000 },
+                "주거/다세대": { c: 7500000, r: 110000 }
+            };
 
-        function runCalc() {
-            const area = parseFloat(document.getElementById('calcArea').value) || 0;
-            const zone = document.getElementById('calcZone').value;
-            const use = document.getElementById('calcUse').value;
+            function getRoadEffect(roadWidth) {
+                if (roadWidth < 4.0) {
+                    return { farMult: 0.7, maxFloors: "3층 제한", difficulty: "높음 (소방도로 미확보 리스크)", penalty: "용적률 30% 페널티" };
+                } else if (roadWidth < 8.0) {
+                    return { farMult: 1.0, maxFloors: "일반 계산", difficulty: "보통", penalty: "해당 없음" };
+                } else {
+                    return { farMult: 1.1, maxFloors: "+2층 추가", difficulty: "낮음 (대형 장비 진입 수월)", penalty: "용적률 10% 인센티브" };
+                }
+            }
 
-            const far = zoneFars[zone] || 2.0;
-            const cost = useCosts[use] || { c: 8000000, r: 130000 };
+            function runCalc() {
+                const area = parseFloat(document.getElementById('calcArea').value) || 0;
+                const zone = document.getElementById('calcZone').value;
+                const roadWidth = parseFloat(document.getElementById('calcRoad').value) || 0;
+                const use = document.getElementById('calcUse').value;
 
-            const totalArea = Math.round(area * far);
-            const totalCost = Math.round(totalArea * cost.c * 1.14);
-            const grossRent = totalArea * cost.r * 12;
-            const noi = Math.round(grossRent * 0.82);
-            const irr = totalCost > 0 ? (((noi / totalCost) * 100) * 1.45).toFixed(1) : 0;
+                const far = (zoneFars[zone] || 2.0);
+                const cost = useCosts[use] || { c: 8000000, r: 130000 };
+                const roadEffect = getRoadEffect(roadWidth);
 
-            document.getElementById('outArea').innerText = totalArea + ' 평';
-            document.getElementById('outCost').innerText = (totalCost / 100000000).toFixed(1) + ' 억';
-            document.getElementById('outNOI').innerText = (noi / 100000000).toFixed(1) + ' 억';
-            document.getElementById('outIRR').innerText = irr + ' %';
-        }
-    </script>
+                const effectiveFar = far * roadEffect.farMult;
+                const totalArea = Math.round(area * effectiveFar);
+                const totalCost = Math.round(totalArea * cost.c * 1.14);
+                const grossRent = totalArea * cost.r * 12;
+                const noi = Math.round(grossRent * 0.82);
+                const irr = totalCost > 0 ? (((noi / totalCost) * 100) * 1.45).toFixed(1) : 0;
+
+                document.getElementById('outArea').innerText = totalArea + ' 평';
+                document.getElementById('outCost').innerText = (totalCost / 100000000).toFixed(1) + ' 억';
+                document.getElementById('outNOI').innerText = (noi / 100000000).toFixed(1) + ' 억';
+                document.getElementById('outIRR').innerText = irr + ' %';
+
+                // 건축사 소견 표시
+                const opinionBox = document.getElementById('roadOpinion');
+                if (opinionBox) {
+                    opinionBox.innerHTML = `<div class="text-[10px] text-amber-400 mt-2 text-left">• <strong>도로 폭 ${roadWidth}m 적용</strong>: ${roadEffect.penalty}, ${roadEffect.maxFloors}, 시공 난이도 ${roadEffect.difficulty}</div>`;
+                }
+            }
+        </script>
 </body>
 </html>
