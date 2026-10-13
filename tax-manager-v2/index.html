@@ -195,24 +195,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans K
 
 <script src="../_shared/nvidia-nim-client.js"></script>
 <script>
-// NIM 클라이언트 초기화
-let nimClient = null;
-
-function initNIM() {
-  const key = localStorage.getItem('nim_api_key') || '';
-  document.getElementById('nimApiKey').value = key;
-  nimClient = new NIMClient({ apiKey: key });
-}
-
-function saveKey() {
-  const key = document.getElementById('nimApiKey').value.trim();
-  if (key) {
-    localStorage.setItem('nim_api_key', key);
-  } else {
-    localStorage.removeItem('nim_api_key');
+// 10조 AI 클라이언트 — 추가비용 0원
+// 우선순위: Cloudflare Workers AI (무료) → NVIDIA NIM (무료 크레딧) → 로컬 규칙
+const AI_PROVIDERS = {
+  cloudflare: {
+    name: 'Cloudflare Workers AI',
+    url: 'https://ai-proxy.10jo.workers.dev', // 실제 Worker URL로 변경
+    model: '@cf/meta/llama-3.1-8b-instruct'
+  },
+  nim: {
+    name: 'NVIDIA NIM',
+    model: 'meta/llama-3.3-70b-instruct'
   }
-  nimClient = new NIMClient({ apiKey: key });
-}
+};
+
+let currentProvider = 'cloudflare'; // 기본: Cloudflare (무료)
 
 async function askAI() {
   const question = document.getElementById('taxQuestion').value.trim();
@@ -226,28 +223,101 @@ async function askAI() {
   answerDiv.textContent = 'AI가 답변을 생성 중입니다...';
   sourceDiv.textContent = '';
   
+  const messages = [
+    { role: 'system', content: '당신은 한국 세무 전문가입니다. 세무 관련 질문에 정확하고 실용적으로 답변하세요. 세무 신고 대행은 하지 않으며, 계산 결과는 예상치임을 명시하세요.' },
+    { role: 'user', content: question }
+  ];
+
+  // 1순위: Cloudflare Workers AI (무료)
   try {
-    const response = await nimClient.chat({
-      messages: [
-        { role: 'system', content: '당신은 한국 세무 전문가입니다. 세무 관련 질문에 정확하고 실용적으로 답변하세요. 세무 신고 대행은 하지 않으며, 계산 결과는 예상치임을 명시하세요.' },
-        { role: 'user', content: question }
-      ],
-      model: 'meta/llama-3.3-70b-instruct',
-      temperature: 0.3,
-      maxTokens: 1024
+    const resp = await fetch(AI_PROVIDERS.cloudflare.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages,
+        model: AI_PROVIDERS.cloudflare.model,
+        temperature: 0.3,
+        max_tokens: 1024
+      })
     });
     
-    answerDiv.textContent = response.text;
-    const sourceLabel = response.source === 'nim' ? 'NVIDIA NIM (Llama 3.3 70B)' : 
-                       response.source === 'local' ? '로컬 규칙 기반 (API 키 없음)' : '기본 응답';
-    sourceDiv.textContent = `응답 소스: ${sourceLabel} · 토큰: ${response.usage?.totalTokens || 0}`;
+    if (resp.ok) {
+      const data = await resp.json();
+      answerDiv.textContent = data.text;
+      sourceDiv.textContent = `응답 소스: ${AI_PROVIDERS.cloudflare.name} (무료) · 모델: ${data.model}`;
+      return;
+    }
   } catch (e) {
-    answerDiv.textContent = '오류가 발생했습니다: ' + e.message;
-    sourceDiv.textContent = '';
+    console.warn('Cloudflare AI 실패:', e.message);
   }
+
+  // 2순위: NVIDIA NIM (무료 크레딧)
+  const nimKey = localStorage.getItem('nim_api_key') || '';
+  if (nimKey) {
+    try {
+      const nimClient = new NIMClient({ apiKey: nimKey });
+      const response = await nimClient.chat({
+        messages,
+        model: AI_PROVIDERS.nim.model,
+        temperature: 0.3,
+        maxTokens: 1024
+      });
+      
+      answerDiv.textContent = response.text;
+      sourceDiv.textContent = `응답 소스: ${AI_PROVIDERS.nim.name} (무료 크레딧) · 모델: ${response.model}`;
+      return;
+    } catch (e) {
+      console.warn('NIM 실패:', e.message);
+    }
+  }
+
+  // 3순위: 로컬 규칙 (항상 가능)
+  const localAnswer = getLocalAnswer(question);
+  answerDiv.textContent = localAnswer;
+  sourceDiv.textContent = '응답 소스: 로컬 규칙 기반 (오프라인, 무료)';
 }
 
-initNIM();
+// 로컬 규칙 기반 응답 (API 없이도 동작)
+function getLocalAnswer(question) {
+  const q = question.toLowerCase();
+  
+  if (q.includes('환급') && q.includes('프리랜서')) {
+    return `프리랜서 세금 환급 가이드
+
+1. 원천징수: 매출의 3.3%가 원천징수됩니다
+2. 종합소득세 신고: 연말정산 시 정산
+3. 환급 조건: 원천징수액 > 결정세액
+
+예시 (연소득 3,000만원):
+- 원천징수: 990,000원
+- 결정세액: 약 1,200,000원
+- 환급: 없음 (추가 납부 필요)
+
+정확한 계산은 위 계산기를 이용하세요.`;
+  }
+  
+  if (q.includes('부가세') || q.includes('부가가치세')) {
+    return `부가가치세 안내
+
+1. 과세 표준: 매출액 - 매입액
+2. 일반 과세자: 10%
+3. 간이 과세자: 매출액의 0.5~3%
+
+신고 기한: 분기 종료 후 25일까지
+예: 1분기 → 4월 25일까지`;
+  }
+  
+  return `세무 상담 답변
+
+질문하신 내용에 대해 정확한 답변을 드리기 위해서는 더 구체적인 정보가 필요합니다.
+
+추가 정보를 입력해 주세요:
+- 소득 유형 (프리랜서/사업자/직장인)
+- 연 소득 규모
+- 구체적인 상황
+
+또는 위의 계산기를 이용하여 직접 계산해 보실 수 있습니다.`;
+}
 </script>
 
 <script>
