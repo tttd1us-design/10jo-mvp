@@ -237,6 +237,8 @@ textarea id="harassDesc" placeholder="구체적으로 어떤 일이 있었는지
 
 </div>
 
+<div id="ai-consult-mount"></div>
+
 <div class="footer">
 <p>갑질 신고 도우미 v2.0 — 법률 자문이 아닙니다. 법적 문제는 반드시 변호사와 상담하시기 바랍니다.</p>
 </div>
@@ -310,6 +312,17 @@ document.getElementById(tab).classList.add('active');
 }
 
 genForm();
+</script>
+<script src="../_shared/10jo-ai.js"></script>
+<script>
+10joAI.attach({
+  title: 'AI 직장 내 괴롭힘 상담',
+  placeholder: '예: 직장 상사가 반복적으로 모욕적인 발언을 합니다. 어떻게 대응해야 하나요?',
+  system: '당신은 한국 근로기준법 및 직장 내 괴롭힘 전문가입니다. 법적 대응 절차와 증거 확보 방법을 실용적으로 안내하세요.',
+  localAnswer: function(q) {
+    return '질문: ' + q + '\n\nAI 상담을 이용하시려면 NVIDIA NIM API 키를 입력해 주세요.\n키 발급: https://build.nvidia.com (무료, 카드 등록 불필요)\n\n키 없이도 위의 도구를 사용하실 수 있습니다.';
+  }
+});
 </script>
 </body>
 </html>

@@ -126,6 +126,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans K
 </div>
 </div>
 
+<div id="ai-consult-mount"></div>
+
 <div class="footer">
 <p>창업 상권분석 v1.0 — 계산 결과는 예상치이며 실제 상권 상황과 다를 수 있습니다.</p>
 </div>
@@ -203,6 +205,17 @@ if(recs.length===0)recs.push('현재 조건은 보통 수준입니다. 추가 �
 document.getElementById('recList').innerHTML=recs.map(r=>`<li>${r}</li>`).join('');
 }
 calculate();
+</script>
+<script src="../_shared/10jo-ai.js"></script>
+<script>
+10joAI.attach({
+  title: 'AI 창업 입지 상담',
+  placeholder: '예: 예산 5천만원으로 서울에서 카페 창업하려면 어디가 좋을까요?',
+  system: '당신은 한국 창업 입지 분석 전문가입니다. 상권, 임대료, 유동인구, 업종 적합성 관련 질문에 실용적으로 답변하세요.',
+  localAnswer: function(q) {
+    return '질문: ' + q + '\n\nAI 상담을 이용하시려면 NVIDIA NIM API 키를 입력해 주세요.\n키 발급: https://build.nvidia.com (무료, 카드 등록 불필요)\n\n키 없이도 위의 도구를 사용하실 수 있습니다.';
+  }
+});
 </script>
 </body>
 </html>

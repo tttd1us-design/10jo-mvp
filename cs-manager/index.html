@@ -178,6 +178,8 @@ CS매니저: 9,900 × 12 = <b>118,800원</b> → <b style="color:#155724">연 1,
 
 </div>
 
+<div id="ai-consult-mount"></div>
+
 <div class="footer">
 <p>CS매니저 v1.0 — 모든 처리는 브라우저 안에서만 이루어집니다.</p>
 </div>
@@ -231,6 +233,17 @@ document.getElementById(tab).classList.add('active');
 }
 
 renderList();
+</script>
+<script src="../_shared/10jo-ai.js"></script>
+<script>
+10joAI.attach({
+  title: 'AI 고객 응대 상담',
+  placeholder: '예: 환불 요청 고객에게 어떻게 응대해야 하나요?',
+  system: '당신은 고객 응대 전문가입니다. 컴플레인 대응, 환불 정책, 고객 관계 관리 관련 질문에 실용적으로 답변하세요.',
+  localAnswer: function(q) {
+    return '질문: ' + q + '\n\nAI 상담을 이용하시려면 NVIDIA NIM API 키를 입력해 주세요.\n키 발급: https://build.nvidia.com (무료, 카드 등록 불필요)\n\n키 없이도 위의 도구를 사용하실 수 있습니다.';
+  }
+});
 </script>
 </body>
 </html>

@@ -139,7 +139,9 @@
             </div>
         </div>
 
-        <div class="footer">
+        <div id="ai-consult-mount"></div>
+
+<div class="footer">
             <p>© 2026 송장자동화 | 10조 스튜디오</p>
             <p>문의: tracking-auto@example.com</p>
         </div>
@@ -170,5 +172,16 @@
             console.log('Submission:', formData);
         });
     </script>
+<script src="../_shared/10jo-ai.js"></script>
+<script>
+10joAI.attach({
+  title: 'AI 물류 추적 상담',
+  placeholder: '예: 배송 추적 시스템을 자동화하려면 어떻게 하나요?',
+  system: '당신은 물류 추적 자동화 전문가입니다. 배송 추적, 물류 관리 관련 질문에 실용적으로 답변하세요.',
+  localAnswer: function(q) {
+    return '질문: ' + q + '\n\nAI 상담을 이용하시려면 NVIDIA NIM API 키를 입력해 주세요.\n키 발급: https://build.nvidia.com (무료, 카드 등록 불필요)\n\n키 없이도 위의 도구를 사용하실 수 있습니다.';
+  }
+});
+</script>
 </body>
 </html>

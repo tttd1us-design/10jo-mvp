@@ -68,6 +68,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div id="resultContent"></div>
 </div>
 
+<div id="ai-consult-mount"></div>
+
 <div class="footer">
 <p>반품정책 체커 v1.0 — 전자상거래법 제17조 기준</p>
 <p>본 도구는 법적 자문이 아닙니다. 정확한 법적 판단은 전문가와 상담하세요.</p>
@@ -197,6 +199,17 @@ function checkPolicy() {
     btn.disabled = false;
   }, 1500);
 }
+</script>
+<script src="../_shared/10jo-ai.js"></script>
+<script>
+10joAI.attach({
+  title: 'AI 환불 정책 상담',
+  placeholder: '예: 온라인 쇼핑몰 환불 정책이 법적으로 문제가 있나요?',
+  system: '당신은 한국 소비자보호법 전문가입니다. 환불 정책, 청약철회, 소비자 분쟁 관련 질문에 실용적으로 답변하세요.',
+  localAnswer: function(q) {
+    return '질문: ' + q + '\n\nAI 상담을 이용하시려면 NVIDIA NIM API 키를 입력해 주세요.\n키 발급: https://build.nvidia.com (무료, 카드 등록 불필요)\n\n키 없이도 위의 도구를 사용하실 수 있습니다.';
+  }
+});
 </script>
 </body>
 </html>
