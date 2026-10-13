@@ -170,9 +170,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans K
 <div class="desc">NVIDIA NIM API 기반 AI 세무 상담. API 키 없이도 기본 상담이 가능합니다.</div>
 
 <div class="input-group">
-<label for="nimApiKey">NVIDIA NIM API 키 (선택) — 없어도 기본 상담 가능</label>
-<input type="password" id="nimApiKey" placeholder="nvapi-... (build.nvidia.com에서 무료 발급)" onchange="saveKey()">
-<div style="font-size:.85em;color:#888;margin-top:4px">키는 브라우저에만 저장되며 서버로 전송되지 않습니다. 무료 1,000 크레딧 제공.</div>
+<label for="groqApiKey">Groq API 키 (선택) — 없어도 기본 상담 가능</label>
+<input type="password" id="groqApiKey" placeholder="gsk_... (console.groq.com에서 무료 발급)" onchange="saveGroqKey()">
+<div style="font-size:.85em;color:#888;margin-top:4px">키는 브라우저에만 저장되며 서버로 전송되지 않습니다. 무료 한도: 30 req/min, 1,000 req/day. 카드 등록 불필요.</div>
 </div>
 
 <div class="input-group">
@@ -193,23 +193,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans K
 </div>
 </div>
 
-<script src="../_shared/nvidia-nim-client.js"></script>
 <script>
-// 10조 AI 클라이언트 — 추가비용 0원
-// 우선순위: Cloudflare Workers AI (무료) → NVIDIA NIM (무료 크레딧) → 로컬 규칙
-const AI_PROVIDERS = {
-  cloudflare: {
-    name: 'Cloudflare Workers AI',
-    url: 'https://ai-proxy.10jo.workers.dev', // 실제 Worker URL로 변경
-    model: '@cf/meta/llama-3.1-8b-instruct'
-  },
-  nim: {
-    name: 'NVIDIA NIM',
-    model: 'meta/llama-3.3-70b-instruct'
-  }
-};
+// 10조 AI 클라이언트 — 추가비용 0원, 실제 동작
+// 우선순위: Groq API (무료, 카드등록불필요) → 로컬 규칙 (오프라인)
+// Groq 무료 한도: 30 req/min, 1,000 req/day, 200K tokens/day
+// API 키 발급: https://console.groq.com (무료, 카드등록불필요)
 
-let currentProvider = 'cloudflare'; // 기본: Cloudflare (무료)
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+function getGroqKey() {
+  return localStorage.getItem('groq_api_key') || '';
+}
+
+function saveGroqKey() {
+  const key = document.getElementById('groqApiKey').value.trim();
+  if (key) {
+    localStorage.setItem('groq_api_key', key);
+  } else {
+    localStorage.removeItem('groq_api_key');
+  }
+}
 
 async function askAI() {
   const question = document.getElementById('taxQuestion').value.trim();
@@ -228,50 +232,40 @@ async function askAI() {
     { role: 'user', content: question }
   ];
 
-  // 1순위: Cloudflare Workers AI (무료)
-  try {
-    const resp = await fetch(AI_PROVIDERS.cloudflare.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages,
-        model: AI_PROVIDERS.cloudflare.model,
-        temperature: 0.3,
-        max_tokens: 1024
-      })
-    });
-    
-    if (resp.ok) {
-      const data = await resp.json();
-      answerDiv.textContent = data.text;
-      sourceDiv.textContent = `응답 소스: ${AI_PROVIDERS.cloudflare.name} (무료) · 모델: ${data.model}`;
-      return;
-    }
-  } catch (e) {
-    console.warn('Cloudflare AI 실패:', e.message);
-  }
-
-  // 2순위: NVIDIA NIM (무료 크레딧)
-  const nimKey = localStorage.getItem('nim_api_key') || '';
-  if (nimKey) {
+  // 1순위: Groq API (무료, 카드등록불필요)
+  const apiKey = getGroqKey();
+  if (apiKey) {
     try {
-      const nimClient = new NIMClient({ apiKey: nimKey });
-      const response = await nimClient.chat({
-        messages,
-        model: AI_PROVIDERS.nim.model,
-        temperature: 0.3,
-        maxTokens: 1024
+      const resp = await fetch(GROQ_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: GROQ_MODEL,
+          messages,
+          temperature: 0.3,
+          max_tokens: 1024
+        })
       });
       
-      answerDiv.textContent = response.text;
-      sourceDiv.textContent = `응답 소스: ${AI_PROVIDERS.nim.name} (무료 크레딧) · 모델: ${response.model}`;
-      return;
+      if (resp.ok) {
+        const data = await resp.json();
+        const text = data.choices?.[0]?.message?.content || '응답을 받지 못했습니다.';
+        answerDiv.textContent = text;
+        sourceDiv.textContent = `응답 소스: Groq API (무료) · 모델: ${GROQ_MODEL}`;
+        return;
+      } else {
+        const err = await resp.json().catch(() => ({}));
+        console.warn('Groq API 오류:', resp.status, err);
+      }
     } catch (e) {
-      console.warn('NIM 실패:', e.message);
+      console.warn('Groq API 실패:', e.message);
     }
   }
 
-  // 3순위: 로컬 규칙 (항상 가능)
+  // 2순위: 로컬 규칙 (항상 가능, 오프라인)
   const localAnswer = getLocalAnswer(question);
   answerDiv.textContent = localAnswer;
   sourceDiv.textContent = '응답 소스: 로컬 규칙 기반 (오프라인, 무료)';
