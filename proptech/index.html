@@ -80,7 +80,7 @@
 
             <div class="border-t border-slate-800 pt-4 text-xs text-slate-400 space-y-1.5">
                 <p>• <strong>1등 제품 대비 보완사항</strong>: 통상 누락되는 실제 운영경비(18%) 및 설계·감리·금융 부대비용(14%) 하드코딩 반영</p>
-                <p>• <strong>건축사 소견</strong>: 도로 폭 6m 기준 4~5개 층 규모 적정, 호텔 용도 시 공실률 25% 가정 하에도 Cap Rate 우수</p>
+                <p id="architectOpinion">• <strong>건축사 소견</strong>: 도로 폭 6m 기준 4~5개 층 규모 적정, 호텔 용도 시 공실률 25% 가정 하에도 Cap Rate 우수</p>
             </div>
         </div>
     </div>
@@ -101,20 +101,33 @@
             "주거/다세대": { constCost: 7500000, rent: 110000 }
         };
 
+        function getRoadEffect(roadWidth) {
+            if (roadWidth < 4.0) {
+                return { farMult: 0.7, maxFloors: 3, difficulty: "높음 (소방도로 미확보 리스크)", penalty: "용적률 30% 페널티" };
+            } else if (roadWidth < 8.0) {
+                return { farMult: 1.0, maxFloors: null, difficulty: "보통", penalty: "해당 없음" };
+            } else {
+                return { farMult: 1.1, maxFloors: "+2층", difficulty: "낮음 (대형 장비 진입 수월)", penalty: "용적률 10% 인센티브" };
+            }
+        }
+
         function calculate() {
             const area = parseFloat(document.getElementById('landArea').value);
             const zone = document.getElementById('zoneType').value;
+            const roadWidth = parseFloat(document.getElementById('roadWidth').value) || 0;
             const target = document.getElementById('targetUse').value;
 
             const limit = zoneLimits[zone];
             const costInfo = costs[target];
+            const roadEffect = getRoadEffect(roadWidth);
 
-            const totalArea = Math.round(area * limit.far);
+            const effectiveFar = limit.far * roadEffect.farMult;
+            const totalArea = Math.round(area * effectiveFar);
             const constCost = totalArea * costInfo.constCost;
-            const totalProjectCost = constCost * 1.14; // 설계/감리/금융 포함
+            const totalProjectCost = constCost * 1.14;
 
             const grossRent = totalArea * costInfo.rent * 12;
-            const noi = grossRent * 0.82; // 운영비 18% 차감
+            const noi = grossRent * 0.82;
             const capRate = (noi / totalProjectCost) * 100;
             const irr = capRate * 1.45;
 
@@ -122,6 +135,12 @@
             document.getElementById('resTotalCost').innerText = (totalProjectCost / 100000000).toFixed(1) + ' 억';
             document.getElementById('resNOI').innerText = (noi / 100000000).toFixed(1) + ' 억';
             document.getElementById('resIRR').innerText = irr.toFixed(1) + ' %';
+
+            // 건축사 소견 업데이트
+            const opinionEl = document.getElementById('architectOpinion');
+            if (opinionEl) {
+                opinionEl.innerHTML = `• <strong>도로 폭 ${roadWidth}m 적용</strong>: ${roadEffect.penalty}, 최대 층수 ${roadEffect.maxFloors || '일반 계산'}, 시공 난이도 ${roadEffect.difficulty}`;
+            }
         }
         calculate();
     </script>
