@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>세노매니저 — 숨은 수수료 없는 세금 도구</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;background:#f5f7fa;color:#333;line-height:1.6}
+.container{max-width:1000px;margin:0 auto;padding:20px}
+.hero{text-align:center;padding:48px 20px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;border-radius:16px;margin-bottom:24px}
+.hero h1{font-size:2.2em;margin-bottom:12px}
+.hero .sub{font-size:1.1em;opacity:.9;margin-bottom:20px}
+.hero .compare{display:inline-block;background:rgba(255,255,255,.1);padding:12px 24px;border-radius:10px;font-size:.95em}
+.hero .compare b{color:#4ade80}
+.card{background:#fff;border-radius:12px;padding:28px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.card h2{font-size:1.25em;margin-bottom:8px;color:#1a1a1a}
+.card .desc{color:#666;font-size:.95em;margin-bottom:20px}
+.input-group{margin-bottom:16px}
+.input-group label{display:block;font-weight:600;margin-bottom:6px;color:#555;font-size:.95em}
+.input-group input,.input-group select{width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:1em}
+.input-group input:focus,.input-group select:focus{outline:none;border-color:#0f3460}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.result{background:#f0f7ff;border-left:4px solid #0f3460;padding:20px;border-radius:8px;margin-top:20px}
+.result h3{color:#0f3460;margin-bottom:12px;font-size:1.1em}
+.big-number{font-size:2.4em;font-weight:700;color:#0f3460;margin:8px 0}
+.big-number .unit{font-size:.5em;color:#888;font-weight:400}
+.fee-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:.9em}
+.fee-table th,.fee-table td{padding:10px;text-align:left;border-bottom:1px solid #eee}
+.fee-table th{background:#f8f9fa;font-weight:600;color:#555}
+.fee-table .ours{background:#f0fff4;font-weight:600;color:#155724}
+.fee-table .theirs{color:#dc3545}
+.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:.8em;font-weight:600}
+.badge.green{background:#d4edda;color:#155724}
+.badge.red{background:#f8d7da;color:#721c24}
+.badge.gray{background:#e9ecef;color:#495057}
+.btn{display:inline-block;padding:14px 32px;background:#0f3460;color:#fff;border:none;border-radius:8px;font-size:1.05em;font-weight:600;cursor:pointer;margin-top:16px}
+.btn:hover{background:#0a2540}
+.btn-full{width:100%}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:20px}
+.feature{background:#f8f9fa;padding:20px;border-radius:10px}
+.feature .icon{font-size:1.8em;margin-bottom:8px}
+.feature .title{font-weight:700;margin-bottom:6px}
+.feature .text{font-size:.9em;color:#666}
+.privacy-note{background:#fff3cd;border-left:4px solid #ffc107;padding:14px;border-radius:8px;margin-top:16px;font-size:.9em;color:#856404}
+.footer{text-align:center;padding:30px;color:#999;font-size:.9em}
+@media(max-width:768px){.input-row{grid-template-columns:1fr}.hero h1{font-size:1.6em}.fee-table{font-size:.8em}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+<h1>세노매니저</h1>
+<div class="sub">환급액 100만원 기준, 삼쩜삼 20만원 → 세노매니저 <b>9,900원</b></div>
+<div class="compare">수수료율 <b>100% 공개</b> · 개인정보 <b>서버 전송 없음</b> · 결과 <b>즉시</b></div>
+</div>
+
+<div class="card">
+<h2>1. 내 세금 환급금 계산</h2>
+<div class="desc">소득 정보를 입력하면 예상 환급액을 즉시 계산합니다. 모든 계산은 브라우저 안에서만 이루어집니다.</div>
+<div class="input-row">
+<div class="input-group">
+<label for="incomeType">소득 유형</label>
+<select id="incomeType" onchange="calc()">
+<option value="freelance">프리랜서 (3.3% 원천징수)</option>
+<option value="business">사업소득 (간이과세자)</option>
+<option value="business2">사업소득 (일반과세자)</option>
+<option value="worker">직장인 (연말정산)</option>
+</select>
+</div>
+<div class="input-group">
+<label for="annualIncome">연 소득 (원)</label>
+<input type="number" id="annualIncome" value="30000000" min="0" step="1000000" oninput="calc()">
+</div>
+</div>
+<div class="input-row">
+<div class="input-group">
+<label for="expenses">연 경비 (원) <span style="font-weight:400;color:#888">— 장부 작성 시</span></label>
+<input type="number" id="expenses" value="12000000" min="0" step="1000000" oninput="calc()">
+</div>
+<div class="input-group">
+<label for="hasBooks">장부 작성 여부</label>
+<select id="hasBooks" onchange="calc()">
+<option value="yes">작성함 (실제 경비 인정)</option>
+<option value="no">안 함 (기준경비율 20.9% 적용)</option>
+</select>
+</div>
+</div>
+
+<div class="result">
+<h3>예상 환급액</h3>
+<div class="big-number" id="refund">—<span class="unit">원</span></div>
+<div id="refundDetail" style="color:#666;font-size:.95em"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>2. 수수료 비교 — 숨김 없이 전부 공개</h2>
+<div class="desc">삼쩜삼은 "환급액의 10~20%"라고만 안내하고 구간별 요율표를 공개하지 않습니다. 저희는 전부 공개합니다.</div>
+<table class="fee-table">
+<thead>
+<tr><th>환급액</th><th>삼쩜삼 (20%+VAT)</th><th>세노매니저</th><th>절감액</th></tr>
+</thead>
+<tbody id="feeBody"></tbody>
+</table>
+<div class="privacy-note">
+<b>왜 이렇게 싼가?</b> 저희는 신고 대행을 하지 않습니다. 대신 홈택스 자동 신고 가이드와 계산을 제공합니다. 대행 수수료가 없으니 가격이 낮습니다.
+</div>
+</div>
+
+<div class="card">
+<h2>3. 삼쩜삼이 못 하는 것</h2>
+<div class="feature-grid">
+<div class="feature">
+<div class="icon">📊</div>
+<div class="title">부가세 신고 지원</div>
+<div class="text">삼쩜삼은 부가세 신고 서비스를 중단했습니다. 세노매니저는 부가세·종합소득세·원천세를 모두 다룹니다.</div>
+</div>
+<div class="feature">
+<div class="icon">🔒</div>
+<div class="title">개인정보 서버 전송 없음</div>
+<div class="text">모든 계산이 브라우저 안에서만 실행됩니다. 삼쩜삼의 개인정보 무단 수임 논란과 무관합니다.</div>
+</div>
+<div class="feature">
+<div class="icon">⚡</div>
+<div class="title">즉시 결과</div>
+<div class="text">삼쩜삼은 신청 후 입금까지 1~3개월. 세노매니저는 즉시 계산하고 바로 신고할 수 있습니다.</div>
+</div>
+<div class="feature">
+<div class="icon">📅</div>
+<div class="title">신고 일정 자동 알림</div>
+<div class="text">부가세·종합소득세·4대보험 마감일을 D-DAY로 표시하고 알림을 보냅니다.</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>4. 요금제</h2>
+<div class="input-row">
+<div class="input-group" style="background:#f8f9fa;padding:20px;border-radius:10px">
+<div style="font-weight:700;color:#0f3460;margin-bottom:8px">무료</div>
+<div style="font-size:1.8em;font-weight:700">0원</div>
+<div style="font-size:.85em;color:#888;margin-bottom:12px">영구 무료</div>
+<ul style="margin-left:20px;font-size:.9em">
+<li>환급액 계산 무제한</li>
+<li>수수료 비교표</li>
+<li>신고 일정 D-DAY</li>
+<li>홈택스 신고 가이드</li>
+</ul>
+</div>
+<div class="input-group" style="background:#f0f7ff;padding:20px;border-radius:10px;border:2px solid #0f3460">
+<div style="font-weight:700;color:#0f3460;margin-bottom:8px">프로 <span class="badge green">추천</span></div>
+<div style="font-size:1.8em;font-weight:700">9,900원</div>
+<div style="font-size:.85em;color:#888;margin-bottom:12px">/월 (VAT 포함)</div>
+<ul style="margin-left:20px;font-size:.9em">
+<li>무료 플랜 전부</li>
+<li>부가세·원천세 계산</li>
+<li>이메일·카카오 알림</li>
+<li>장부 자동 생성</li>
+<li>절세 시나리오 5종</li>
+</ul>
+</div>
+</div>
+<button class="btn btn-full" onclick="alert('무료로 시작합니다.')">무료로 시작하기</button>
+</div>
+
+<div class="footer">
+<p>세노매니저 v2.0 — 계산 결과는 예상치입니다. 세무 신고 대행은 하지 않으며, 모든 계산은 브라우저 안에서만 실행됩니다.</p>
+</div>
+</div>
+
+<script>
+function calc(){
+const type=document.getElementById('incomeType').value;
+const income=parseFloat(document.getElementById('annualIncome').value)||0;
+const expenses=parseFloat(document.getElementById('expenses').value)||0;
+const hasBooks=document.getElementById('hasBooks').value;
+
+// 과세표준 계산
+let taxable;
+if(type==='freelance'||type==='business'||type==='business2'){
+  if(hasBooks==='yes'){
+    taxable=Math.max(0,income-expenses);
+  }else{
+    // 기준경비율 20.9% + 단순경비율
+    taxable=income*(1-0.209);
+  }
+}else{
+  // 직장인: 근로소득공제 간소화
+  taxable=Math.max(0,income*0.7);
+}
+
+// 종합소득세 계산 (2026년 기준 간소화)
+let tax=0;
+const brackets=[
+  {limit:14000000,rate:0.06,deduct:0},
+  {limit:50000000,rate:0.15,deduct:1260000},
+  {limit:88000000,rate:0.24,deduct:5760000},
+  {limit:150000000,rate:0.35,deduct:15440000},
+  {limit:Infinity,rate:0.38,deduct:19940000}
+];
+for(const b of brackets){
+  if(taxable<=b.limit){tax=taxable*b.rate-b.deduct;break;}
+}
+tax=Math.max(0,tax);
+
+// 원천징수세액 (프리랜서 3.3%)
+const withheld=(type==='freelance')?income*0.033:0;
+
+// 환급액
+const refund=Math.max(0,withheld-tax);
+
+document.getElementById('refund').innerHTML=Math.round(refund).toLocaleString()+'<span class="unit">원</span>';
+
+const detail=document.getElementById('refundDetail');
+if(type==='freelance'){
+  detail.textContent=`원천징수 ${Math.round(withheld).toLocaleString()}원 − 결정세액 ${Math.round(tax).toLocaleString()}원 = 환급 ${Math.round(refund).toLocaleString()}원`;
+}else{
+  detail.textContent=`과세표준 ${Math.round(taxable).toLocaleString()}원 기준 결정세액 ${Math.round(tax).toLocaleString()}원`;
+}
+
+// 수수료 비교표
+const amounts=[500000,1000000,2000000,3000000,5000000];
+const rows=amounts.map(a=>{
+  const theirs=Math.round(a*0.2*1.1);
+  const ours=9900;
+  const save=theirs-ours;
+  return `<tr><td>${a.toLocaleString()}원</td><td class="theirs">${theirs.toLocaleString()}원</td><td class="ours">${ours.toLocaleString()}원</td><td class="ours">${save.toLocaleString()}원 절감</td></tr>`;
+}).join('');
+document.getElementById('feeBody').innerHTML=rows;
+}
+calc();
+</script>
+</body>
+</html>

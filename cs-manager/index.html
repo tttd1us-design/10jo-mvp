@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS매니저 — 건당 과금 없는 고객문의 관리</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;background:#f5f7fa;color:#333;line-height:1.6}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+.hero{text-align:center;padding:48px 20px;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;border-radius:16px;margin-bottom:24px}
+.hero h1{font-size:2.2em;margin-bottom:12px}
+.hero .sub{font-size:1.1em;opacity:.9;margin-bottom:20px}
+.hero .compare{display:inline-block;background:rgba(255,255,255,.1);padding:12px 24px;border-radius:10px;font-size:.95em}
+.hero .compare b{color:#4ade80}
+.card{background:#fff;border-radius:12px;padding:28px;margin-bottom:20px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.card h2{font-size:1.25em;margin-bottom:8px;color:#1a1a1a}
+.card .desc{color:#666;font-size:.95em;margin-bottom:20px}
+.tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:10px 20px;border:2px solid #e0e0e0;border-radius:8px;background:#fff;cursor:pointer;font-weight:600;transition:all .2s}
+.tab:hover{border-color:#0f3460}
+.tab.active{border-color:#0f3460;background:#f0f7ff;color:#0f3460}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.inbox{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}
+.msg-list{border-right:1px solid #eee;padding-right:20px;max-height:500px;overflow-y:auto}
+.msg-item{padding:14px;border-radius:8px;cursor:pointer;margin-bottom:8px;border:1px solid #eee}
+.msg-item:hover{background:#fafafa}
+.msg-item.active{background:#f0f7ff;border-color:#0f3460}
+.msg-item .from{font-weight:600;font-size:.95em}
+.msg-item .preview{font-size:.85em;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg-item .meta{font-size:.75em;color:#aaa;margin-top:4px}
+.msg-detail{padding-left:20px}
+.msg-detail .bubble{background:#f8f9fa;padding:14px;border-radius:10px;margin-bottom:12px;font-size:.95em}
+.msg-detail .bubble.mine{background:#f0f7ff;margin-left:40px}
+.msg-detail .bubble .who{font-size:.8em;color:#888;margin-bottom:4px}
+.ai-suggest{background:#f0fff4;border-left:4px solid #28a745;padding:14px;border-radius:8px;margin:16px 0;font-size:.9em}
+.ai-suggest .label{font-weight:700;color:#155724;margin-bottom:6px}
+.reply-box{display:flex;gap:8px;margin-top:16px}
+.reply-box input{flex:1;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:.95em}
+.reply-box input:focus{outline:none;border-color:#0f3460}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-top:20px}
+.stat{background:#f8f9fa;padding:18px;border-radius:10px;text-align:center}
+.stat .label{font-size:.85em;color:#888;margin-bottom:6px}
+.stat .value{font-size:1.6em;font-weight:700;color:#0f3460}
+.compare-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:.9em}
+.compare-table th,.compare-table td{padding:12px;text-align:left;border-bottom:1px solid #eee}
+.compare-table th{background:#f8f9fa;font-weight:600;color:#555}
+.compare-table .ours{background:#f0fff4;font-weight:600;color:#155724}
+.compare-table .theirs{color:#dc3545}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:20px}
+.price-card{background:#f9f9f9;padding:24px;border-radius:12px;text-align:center}
+.price-card.recommended{border:2px solid #0f3460;background:#f0f7ff}
+.price-card .plan{font-size:1.1em;font-weight:700;color:#0f3460;margin-bottom:8px}
+.price-card .price{font-size:2.2em;font-weight:700;color:#333}
+.price-card .period{font-size:.9em;color:#888;margin-bottom:16px}
+.price-card .features{text-align:left;margin-bottom:16px}
+.price-card .features li{margin-bottom:6px;font-size:.9em;list-style:none}
+.price-card .features li:before{content:"✓ ";color:#28a745;font-weight:700}
+.btn{display:inline-block;padding:10px 20px;background:#0f3460;color:#fff;border:none;border-radius:6px;font-size:.95em;font-weight:600;cursor:pointer}
+.btn:hover{background:#0a2540}
+.btn-outline{background:#fff;color:#0f3460;border:2px solid #0f3460}
+.btn-outline:hover{background:#f0f7ff}
+.badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:.8em;font-weight:600}
+.badge.green{background:#d4edda;color:#155724}
+.badge.red{background:#f8d7da;color:#721c24}
+.badge.yellow{background:#fff3cd;color:#856404}
+.refund-note{background:#f0fff4;border-left:4px solid #28a745;padding:16px;border-radius:8px;margin-top:20px;font-size:.9em;color:#155724}
+.footer{text-align:center;padding:30px;color:#999;font-size:.9em}
+@media(max-width:768px){.inbox{grid-template-columns:1fr}.msg-list{border-right:none;border-bottom:1px solid #eee;padding-right:0;padding-bottom:20px}.msg-detail{padding-left:0}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="hero">
+<h1>CS매니저</h1>
+<div class="sub">채널톡 월 9만원 + AI 건당 500원 → CS매니저 <b>월 9,900원 정액</b></div>
+<div class="compare">AI <b>건당 과금 없음</b> · 환불정책 <b>공개</b> · 소상공인 <b>최적화</b></div>
+</div>
+
+<div class="card">
+<div class="tabs">
+<div class="tab active" onclick="switchTab('inbox',this)">문의 관리</div>
+<div class="tab" onclick="switchTab('stats',this)">통계</div>
+<div class="tab" onclick="switchTab('compare',this)">1등 제품 비교</div>
+<div class="tab" onclick="switchTab('pricing',this)">요금제</div>
+</div>
+
+<div class="tab-content active" id="inbox">
+<h2>문의 관리</h2>
+<div class="desc">여러 채널의 문의를 한 곳에서 처리합니다. AI가 답변 초안을 만들어드립니다.</div>
+<div class="inbox">
+<div class="msg-list" id="msgList"></div>
+<div class="msg-detail" id="msgDetail">
+<div style="color:#888;text-align:center;padding:40px">왼쪽에서 문의를 선택하세요</div>
+</div>
+</div>
+</div>
+
+<div class="tab-content" id="stats">
+<h2>이번 달 통계</h2>
+<div class="stat-grid">
+<div class="stat"><div class="label">총 문의</div><div class="value">247</div></div>
+<div class="stat"><div class="label">AI 자동 해결</div><div class="value">168</div></div>
+<div class="stat"><div class="label">자동 해결률</div><div class="value">68%</div></div>
+<div class="stat"><div class="label">평균 응답시간</div><div class="value">1.2분</div></div>
+<div class="stat"><div class="label">AI 비용</div><div class="value">0원</div></div>
+<div class="stat"><div class="label">채널톡 대비 절감</div><div class="value">84,000원</div></div>
+</div>
+<div style="background:#f0fff4;border-left:4px solid #28a745;padding:16px;border-radius:8px;margin-top:20px">
+<b>채널톡이었다면?</b> AI 참여 168건 × 500원 = <b>84,000원</b> 별도 과금 + 기본료 90,000원 = <b>174,000원</b><br>
+CS매니저 = <b>9,900원</b> → <b style="color:#155724">월 164,100원 절감</b>
+</div>
+</div>
+
+<div class="tab-content" id="compare">
+<h2>1등 제품과 비교</h2>
+<div class="desc">채널톡의 실제 요금 구조와 비교했습니다.</div>
+<table class="compare-table">
+<thead>
+<tr><th>항목</th><th>채널톡</th><th>CS매니저</th></tr>
+</thead>
+<tbody>
+<tr><td>기본료</td><td class="theirs">월 90,000원 (그로스)</td><td class="ours">월 9,900원</td></tr>
+<tr><td>AI 과금</td><td class="theirs">대화 1건당 500원</td><td class="ours">0원 (정액 포함)</td></tr>
+<tr><td>상담시트 추가</td><td class="theirs">월 60,000원</td><td class="ours">0원</td></tr>
+<tr><td>무료 플랜</td><td class="theirs">월 100건 제한</td><td class="ours">월 300건</td></tr>
+<tr><td>환불정책</td><td class="theirs">공식 사이트 미공지</td><td class="ours">첫 화면 공개</td></tr>
+<tr><td>알림 안정성</td><td class="theirs">알림 누락 리뷰 존재</td><td class="ours">이메일+카톡 이중화</td></tr>
+<tr><td>소상공인 적합성</td><td class="theirs">Enterprise는 연매출 100억+</td><td class="ours">1인 사업자 최적화</td></tr>
+</tbody>
+</table>
+<div style="background:#f0fff4;border-left:4px solid #28a745;padding:16px;border-radius:8px;margin-top:20px">
+<b>월 문의 250건 기준 연간 비용</b><br>
+채널톡: (90,000 + 170×500) × 12 = <b>2,100,000원</b><br>
+CS매니저: 9,900 × 12 = <b>118,800원</b> → <b style="color:#155724">연 1,981,200원 절감</b>
+</div>
+</div>
+
+<div class="tab-content" id="pricing">
+<h2>요금제</h2>
+<div class="price-grid">
+<div class="price-card">
+<div class="plan">무료</div>
+<div class="price">0원</div>
+<div class="period">영구 무료</div>
+<ul class="features">
+<li>월 문의 300건</li>
+<li>이메일 문의 수집</li>
+<li>AI 답변 초안 (월 50건)</li>
+<li>기본 통계</li>
+</ul>
+<button class="btn btn-outline" onclick="alert('무료로 시작합니다.')">무료 시작</button>
+</div>
+<div class="price-card recommended">
+<div class="plan">프로 <span class="badge green">추천</span></div>
+<div class="price">9,900원</div>
+<div class="period">/월 (VAT 포함)</div>
+<ul class="features">
+<li>문의 무제한</li>
+<li>AI 답변 초안 무제한</li>
+<li>카카오·네이버·인스타 연동</li>
+<li>고급 통계·리포트</li>
+<li>이메일+카톡 알림 이중화</li>
+<li>CS 응대 매뉴얼 자동 생성</li>
+</ul>
+<button class="btn" onclick="alert('프로 플랜을 선택했습니다.')">프로 시작</button>
+</div>
+</div>
+<div class="refund-note">
+<b>환불 정책 (채널톡과 달리 처음부터 공개합니다)</b><br>
+· 결제 후 7일 이내 미사용 시 100% 환불<br>
+· 사용 중 해지 시 남은 기간 일할 환불<br>
+· 문의: support@10jo.studio
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+<p>CS매니저 v1.0 — 모든 처리는 브라우저 안에서만 이루어집니다.</p>
+</div>
+</div>
+
+<script>
+const messages=[
+{id:1,from:'김민수',channel:'네이버',preview:'배송이 언제 오나요?',time:'10:23',body:'주문한 상품이 언제 도착하는지 궁금합니다. 주문번호는 20261013-001입니다.',ai:'주문번호 20261013-001 확인 결과, 오늘 오후 출고 예정이며 내일 도착 예정입니다. 운송장 번호는 출고 후 문자로 안내드립니다.'},
+{id:2,from:'이영희',channel:'쿠팡',preview:'사이즈 교환 가능한가요?',time:'10:15',body:'구매한 티셔츠가 작아서 교환하고 싶습니다. L사이즈로 바꿀 수 있을까요?',ai:'교환 가능합니다. 수령 후 7일 이내 미착용 상태라면 L사이즈로 교환해드립니다. 반품 접수 후 안내드리겠습니다.'},
+{id:3,from:'박철수',channel:'인스타',preview:'재입고 언제 되나요?',time:'09:48',body:'품절된 원두 재입고 예정일 알 수 있을까요?',ai:'해당 원두는 다음 주 화요일 입고 예정입니다. 재입고 알림을 신청하시면 입고 즉시 안내드립니다.'},
+{id:4,from:'최지은',channel:'네이버',preview:'환불 요청합니다',time:'09:30',body:'단순 변심으로 환불 요청드립니다. 아직 개봉하지 않았습니다.',ai:'미개봉 상태라면 수령 후 7일 이내 전액 환불 가능합니다. 반품 접수 링크를 보내드리겠습니다.'},
+{id:5,from:'정대현',channel:'쿠팡',preview:'대량 구매 할인 되나요?',time:'어제',body:'100개 이상 대량 구매 시 할인 가능한지 문의드립니다.',ai:'100개 이상 구매 시 15% 할인 적용됩니다. 견적서를 발송해드리겠습니다.'}
+];
+
+let currentId=null;
+
+function renderList(){
+document.getElementById('msgList').innerHTML=messages.map(m=>`
+<div class="msg-item ${currentId===m.id?'active':''}" onclick="selectMsg(${m.id})">
+<div class="from">${m.from} <span class="badge yellow">${m.channel}</span></div>
+<div class="preview">${m.preview}</div>
+<div class="meta">${m.time}</div>
+</div>`).join('');
+}
+
+function selectMsg(id){
+currentId=id;
+const m=messages.find(x=>x.id===id);
+document.getElementById('msgDetail').innerHTML=`
+<div class="bubble"><div class="who">${m.from} · ${m.channel} · ${m.time}</div>${m.body}</div>
+<div class="ai-suggest">
+<div class="label">AI 답변 초안 (무료)</div>
+${m.ai}
+</div>
+<div class="reply-box">
+<input type="text" id="replyInput" placeholder="답변을 입력하세요..." value="${m.ai}">
+<button class="btn" onclick="sendReply()">전송</button>
+</div>`;
+renderList();
+}
+
+function sendReply(){
+alert('답변이 전송되었습니다.');
+}
+
+function switchTab(tab,el){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+el.classList.add('active');
+document.getElementById(tab).classList.add('active');
+}
+
+renderList();
+</script>
+</body>
+</html>
