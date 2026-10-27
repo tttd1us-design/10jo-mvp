@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026-10-26 생각 마인드맵</title>
+  <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.14"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/markmap-view@0.14/dist/markmap-view.css">
+  <style>
+    :root {
+      --bg: #020617;
+      --fg: #e2e8f0;
+      --muted: #64748b;
+      --accent-amber: #fbbf24;
+      --accent-emerald: #34d399;
+      --accent-rose: #fb7185;
+      --accent-violet: #a78bfa;
+      --accent-cyan: #22d3ee;
+      --accent-slate: #64748b;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: 'JetBrains Mono', 'Pretendard', monospace; }
+    markmap-view { height: 100vh; width: 100%; display: block; }
+    .markmap-svg { background: var(--bg) !important; }
+    .markmap-node circle { stroke-width: 1.5; }
+    .markmap-node text { font-family: inherit !important; }
+    .toolbar { position: fixed; top: 12px; right: 12px; z-index: 100; display: flex; gap: 8px; opacity: 0.7; transition: opacity 0.2s; }
+    .toolbar:hover { opacity: 1; }
+    .btn { background: #0f172a; border: 1px solid #1e293b; color: var(--fg); padding: 8px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.15s; }
+    .btn:hover { background: #1e293b; border-color: var(--accent-cyan); }
+    .legend { position: fixed; bottom: 12px; left: 12px; z-index: 100; background: rgba(2,6,23,0.9); border: 1px solid #1e293b; border-radius: 8px; padding: 12px; font-size: 11px; line-height: 1.8; }
+    .legend-item { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button class="btn" onclick="document.querySelector('markmap-view').dispatchEvent(new CustomEvent('markmap:zoom-reset'))">초기화</button>
+    <button class="btn" onclick="document.querySelector('markmap-view').dispatchEvent(new CustomEvent('markmap:toggle-fullscreen'))">전체화면</button>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span> 수익·비즈니스</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#34d399"></span> 실행·액션</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#fb7185"></span> 리스크·블로커</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span> 연구·탐색</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#22d3ee"></span> 정체성·브랜드</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#64748b"></span> 인프라·시스템</div>
+  </div>
+  <markmap-view>
+# 2026-10-26 생각 마인드맵
+
+## 🌅 새벽 세션 (00:03~06:00) — MG 시리즈 제품화 실행
+### 📚 도서 제작·판매 시스템 구축
+#### MG-01 워크북 (PART 1 기반) ✅ **완료**
+- 핵심 PDF + 워크시트 PDF + 엑셀 트래커 패키지
+- 크몽 등록 준비 완료 (10/28 목표)
+#### MG-02 다이제스트 (PART 2 제12~15장) ✅ **완료**
+- 본문 PDF 125,740 bytes 완성
+- 크몽 등록 메타데이터 준비 (10/30 목표)
+#### MG-03~MG-10 제품 라인업 매핑표 ✅ **완료**
+- 10개 제품, 파트별 매핑, 수익직결도 점수 포함
+- MG-03: 3부작 종이책 기획안 (11/30 출판 목표)
+- MG-04: 템플릿 팩 (노션/옵시디언 100개)
+#### 수익화 파생상품 아이디어
+- 유튜브 쇼츠/롱폼, 노션 템플릿 팩
+- 마이크로 SaaS 앱, 이메일 코스
+- 애프터이펙트 프로그램, 기업 교육 라이선스
+- 오디오북 등
+### 📋 실행 체계
+- 순차적 진행 → 이번 주 내 모든 작업 완성
+- 병렬 작업 체계: 기획·제작·배포 동시 진행
+- 10조북스 그룹장 전결로 메인 업무 지속
+
+## 🌙 저녁 세션 (21:09~21:36) — 정체성·수익·돌파 전략
+### 🎯 핵심 테마: "정체성 키우기 + 실전 수익화"
+
+#### 1. 정체성·루틴 시스템 (21:09)
+##### 일일 루틴 설계
+- 봇과 매일 대화하며 정체성 축적
+- 음악·유튜브·담배 **완전 차단** (킬링타임 제거)
+- 돈 드는 것 거부 → 무료·저비용 시작
+##### 수익 래더 설계
+- 1일 1만 원 → 2만 원 → 기술 습득 → 자동화
+- 부업 월 1,000만 원 달성 → 정식 법인 설립
+##### AI 에이전트 팀 구성
+- 3~4명 소수 정예 (과다 참여 금지)
+- 그룹으로 업무 교육 + 개인 정체성 주입
+- **IDEA-0010 / IDEA-0013** 연결
+
+#### 2. 초점·수익 창출 연구 (21:29)
+- 단순 시간 때우기 **금지**
+- 실질적 돈 만드는 방법 연구
+- 길 찾기 프로세스 체계화
+- **IDEA-0009 / IDEA-0014** 연결
+
+#### 3. 벽 돌파·생존 현금흐름 (21:34) 🔴 **최우선**
+##### 과거 실패 복기
+- 주식 실패 원인: **신용·대출·욕심**
+- 현재: 빌 곳 없음, 벽에 막힘
+##### 생존선 설정
+- **월 300만 원 무조건 확보** (급여 + 부업)
+- 간삼 퇴사 결심 (비전 부재, 월급 불만족)
+- 젊음 희생했으나 앞이 안 보임
+##### 돌파 전략
+- 경험·노하우 최대 활용 → 일일 수익 창출법 발굴
+- **자기 상품화** → 포장 단계 진입
+- **IDEA-0012** 연결
+
+#### 4. AI 포장·실전 수익화 (21:36)
+- AI·기술로 자기 포장
+- 연습·취미 **아님** → 실전 돈 받기
+- 알 깨고 나가기 (Breakthrough)
+- 돈 가치 있는 것 하나씩 쌓기
+- **IDEA-0011** 연결
+
+#### 5. 말하기·전달력·천리안 (21:36)
+- 또박또박·논리적·전달력 필수
+- AI·경험·문과·기술·시안 → **천리안의 눈**
+- 능력 극대화 방안 심도 고민
+- **IDEA-0011 / 스피치 루틴** 연결
+
+## 🔗 아이디어 카드 연계 현황 (자동 채점 완료)
+| ID | 제목 | 점수 | 상태 | 핵심 키워드 |
+|----|------|------|------|-------------|
+| IDEA-0009 | 일일 수익 래더 & 자동화 진화 | 23 | 사업후보 | 1만원→자동화→법인 |
+| IDEA-0010 | AI 에이전트 팀 소수정예 조직화 | 23 | 사업후보 | 3~4명·교육·정체성 |
+| IDEA-0011 | 자기 상품화 - AI 포장 & 실전 수익 | 23 | 사업후보 | 포장·실전·알깨기 |
+| IDEA-0012 | 벽 돌파 - 월 300만 생존 현금흐름 | 24 | 사업후보 | 생존선·경험활용·상품화 |
+| IDEA-0013 | 헤르메스 일일 과제 프로젝트 | 25 | 사업후보 | 아침부여·자동화·리포트 |
+| IDEA-0014 | 매일 수익 아이템 제작·저녁 업로드 | 24 | 사업후보 | 기획→제작→업로드→수익 |
+
+## ⚡ 즉시 실행 태스크 (10/28 마감)
+### 🎯 크몽 1호 상품 등록 (IDEA-0009·0012)
+- 토지분석 자동화 템플릿 1만 원
+### 🎯 지식스파크 사전예약 10명 모집 (IDEA-0012)
+- 무료 → 유료 전환 트리거
+### 🎯 '하루 1만 원' 7일 도전기 블로그 연재 (IDEA-0009·0011)
+- 무료 PDF 리드자석 배포
+### 🎯 구의동 다가구 경매 임장·권리분석 (IDEA-0001)
+- 3대 결함 점검·대출확약·입찰가 확정
+
+## 📊 전략적 통찰
+### 수익화 3대 축 (동시 런칭 권장)
+1. **크몽** - 즉시 현금화, 검증된 마켓
+2. **지식스파크** - 자사 플랫폼, 고객 자산화
+3. **블로그/콘텐츠** - 유입·신뢰·리드자석
+
+### 위험 요소·대응
+- **시간 부족** → 병렬 파이프라인·자동화 필수
+- **완벽주의** → MVP·실전·빠른 피드백 우선
+- **자금 제약** → 0원·저비용 도구만 사용 (GitHub Pages, 무료 API)
+
+### 정체성 키워드
+> "천리안의 눈으로, 알을 깨고, 매일 하나씩 만들어, 월 300만을 넘는다"
+  </markmap-view>
+  <script>
+    // Markmap auto-initializes; toolbar buttons dispatch custom events
+    const mm = document.querySelector('markmap-view');
+    mm.addEventListener('markmap:ready', () => {
+      console.log('Mindmap ready');
+    });
+  </script>
+</body>
+</html>
