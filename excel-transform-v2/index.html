@@ -220,15 +220,17 @@ document.getElementById('dataSection').style.display='block';
 reader.readAsText(file);
 }
 
+// 업로드 파일의 셀 값을 그대로 HTML로 넣으면 <img onerror=...> 같은 내용이 실행된다(XSS) → 이스케이프
+function escHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function showData(data,elementId){
 if(!data||!data.length)return;
 const keys=Object.keys(data[0]);
 let html='<table class="data-table"><thead><tr>';
-keys.forEach(k=>html+=`<th>${k}</th>`);
+keys.forEach(k=>html+=`<th>${escHtml(k)}</th>`);
 html+='</tr></thead><tbody>';
 data.slice(0,20).forEach(row=>{
 html+='<tr>';
-keys.forEach(k=>html+=`<td>${row[k]}</td>`);
+keys.forEach(k=>html+=`<td>${escHtml(row[k])}</td>`);
 html+='</tr>';
 });
 if(data.length>20)html+=`<tr><td colspan="${keys.length}" style="text-align:center;color:#888">... 총 ${data.length}행 중 20행 표시</td></tr>`;

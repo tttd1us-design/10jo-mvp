@@ -224,15 +224,17 @@ document.getElementById('dataSection').style.display='block';
 reader.readAsText(file);
 }
 
+// 업로드 파일의 셀 값을 그대로 HTML로 넣으면 <img onerror=...> 같은 내용이 실행된다(XSS) → 이스케이프
+function escHtml(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function showData(data,elementId){
 if(!data||!data.length)return;
 const keys=Object.keys(data[0]);
 let html='<table class="data-table"><thead><tr>';
-keys.forEach(k=>html+=`<th>${k}</th>`);
+keys.forEach(k=>html+=`<th>${escHtml(k)}</th>`);
 html+='</tr></thead><tbody>';
 data.slice(0,20).forEach(row=>{
 html+='<tr>';
-keys.forEach(k=>html+=`<td>${row[k]}</td>`);
+keys.forEach(k=>html+=`<td>${escHtml(row[k])}</td>`);
 html+='</tr>';
 });
 if(data.length>20)html+=`<tr><td colspan="${keys.length}" style="text-align:center;color:#888">... 총 ${data.length}행 중 20행 표시</td></tr>`;
@@ -355,7 +357,16 @@ document.getElementById(tab).classList.add('active');
 </html>
 '''
 
-os.makedirs(r"D:\10jo_Studio\03_apps_dev\projects\10jo-site\excel-transform-v2", exist_ok=True)
-with open(r"D:\10jo_Studio\03_apps_dev\projects\10jo-site\excel-transform-v2\index.html", "w", encoding="utf-8") as f:
-    f.write(excel_v2)
+
+# --- 출력 (2026-11-05 수정) ---
+# 예전엔 D:\10jo_Studio\... 고정 경로에 무조건 덮어써서, 그 뒤 index.html에 직접 추가된
+# AI 상담 기능 등이 build.py를 다시 실행하면 사라졌다. 이 폴더의 index.html이 이 스크립트 결과와
+# 다르면 덮어쓰지 않는다(--force로 강제). index.html이 현재 원본이다.
+import sys as _sys
+from pathlib import Path as _Path
+_out = _Path(__file__).resolve().parent / "index.html"
+if _out.exists() and _out.read_text(encoding="utf-8") != excel_v2 and "--force" not in _sys.argv:
+    print(f"[중단] {_out} 가 build.py 결과와 다릅니다(직접 수정된 내용 보호). 덮어쓰려면 --force")
+    _sys.exit(1)
+_out.write_text(excel_v2, encoding="utf-8")
 print("엑셀 자동 변환 v2 생성 완료")
