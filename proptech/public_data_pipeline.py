@@ -205,6 +205,23 @@ class PublicDataPipeline:
         # API 키 치환 (서울시 API 등)
         if "{key}" in url:
             url = url.replace("{key}", self.api_key)
+
+        # 2026-11-05: 공공데이터포털·국토부 API는 serviceKey가 필수인데 붙이지 않았다.
+        #   키 없이 호출하면 HTTP 200 + 'SERVICE KEY IS NOT REGISTERED' 오류 문서가 오고,
+        #   이를 성공 데이터로 받아 24시간 캐시했다.
+        host = url.split("/")[2] if "://" in url else ""
+        if host.split(":")[0] in ("apis.data.go.kr", "openapi.molit.go.kr"):
+            if not self.api_key:
+                return APICallResult(api_key=api_key, api_name=config["name"], success=False,
+                                     error="PUBLIC_DATA_API_KEY 미설정 — 공공데이터포털 인증키 필요",
+                                     response_time_ms=0, timestamp=datetime.now().isoformat())
+            call_params.setdefault("serviceKey", self.api_key)
+        if "juso.go.kr" in host and not call_params.get("confmKey"):
+            call_params["confmKey"] = os.getenv("JUSO_API_KEY", "")
+            if not call_params["confmKey"]:
+                return APICallResult(api_key=api_key, api_name=config["name"], success=False,
+                                     error="JUSO_API_KEY 미설정 — 도로명주소 API 승인키 필요",
+                                     response_time_ms=0, timestamp=datetime.now().isoformat())
         
         cache_path = self._get_cache_path(api_key, call_params)
         
@@ -233,7 +250,13 @@ class PublicDataPipeline:
                     data = self._parse_xml(resp.text)
                 else:
                     data = resp.json()
-                
+
+                api_err = self._api_error(data, resp.text)
+                if api_err:
+                    return APICallResult(api_key=api_key, api_name=config["name"], success=False,
+                                         error=api_err, response_time_ms=elapsed_ms,
+                                         timestamp=datetime.now().isoformat())
+
                 result = APICallResult(
                     api_key=api_key,
                     api_name=config["name"],
@@ -267,6 +290,21 @@ class PublicDataPipeline:
                 timestamp=datetime.now().isoformat()
             )
     
+    @staticmethod
+    def _api_error(data, raw_text: str) -> Optional[str]:
+        """HTTP 200이어도 본문이 오류인 경우를 판별 (공공데이터포털·국토부·서울시·도로명주소 공통 형식)"""
+        if "OpenAPI_ServiceResponse" in raw_text or "returnAuthMsg" in raw_text:
+            import re as _re
+            m = _re.search(r"<returnAuthMsg>([^<]+)</returnAuthMsg>", raw_text)
+            return "API 인증/호출 오류: " + (m.group(1) if m else raw_text[:150])
+        txt = json.dumps(data, ensure_ascii=False) if not isinstance(data, str) else data
+        import re as _re
+        m = _re.search(r'"(?:resultCode|errorCode|CODE)"\s*:\s*"([^"]+)"', txt)
+        if m and m.group(1) not in ("00", "000", "0", "INFO-000", "0000"):
+            msg = _re.search(r'"(?:resultMsg|errorMessage|MESSAGE)"\s*:\s*"([^"]+)"', txt)
+            return f"API 오류 코드 {m.group(1)}: {msg.group(1) if msg else ''}"
+        return None
+
     def _parse_xml(self, xml_text: str) -> Dict:
         """XML 응답을 딕셔너리로 파싱"""
         try:
