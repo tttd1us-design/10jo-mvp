@@ -242,7 +242,16 @@ renderList();
 </html>
 '''
 
-os.makedirs(r"D:\10jo_Studio\03_apps_dev\projects\10jo-site\cs-manager", exist_ok=True)
-with open(r"D:\10jo_Studio\03_apps_dev\projects\10jo-site\cs-manager\index.html", "w", encoding="utf-8") as f:
-    f.write(cs_html)
+
+# --- 출력 (2026-11-05 수정) ---
+# 예전엔 D:\10jo_Studio\... 고정 경로에 무조건 덮어써서, 그 뒤 index.html에 직접 추가된
+# AI 상담 기능 등이 build.py를 다시 실행하면 사라졌다. 이 폴더의 index.html이 이 스크립트 결과와
+# 다르면 덮어쓰지 않는다(--force로 강제). index.html이 현재 원본이다.
+import sys as _sys
+from pathlib import Path as _Path
+_out = _Path(__file__).resolve().parent / "index.html"
+if _out.exists() and _out.read_text(encoding="utf-8") != cs_html and "--force" not in _sys.argv:
+    print(f"[중단] {_out} 가 build.py 결과와 다릅니다(직접 수정된 내용 보호). 덮어쓰려면 --force")
+    _sys.exit(1)
+_out.write_text(cs_html, encoding="utf-8")
 print("CS매니저 생성 완료")
