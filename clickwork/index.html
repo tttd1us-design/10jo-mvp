@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>클릭워크 — 하루 4시간 절약, 월간 오류 비용 75% 감소</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif; line-height: 1.6; color: #1a1a1a; background: #fafafa; }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+    .hero { text-align: center; padding: 60px 20px; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: white; border-radius: 16px; margin-bottom: 40px; }
+    .hero h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 16px; }
+    .hero p { font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+    .metric-bar { display: flex; justify-content: center; gap: 40px; margin-top: 40px; flex-wrap: wrap; }
+    .metric { text-align: center; }
+    .metric-value { font-size: 2rem; font-weight: 700; color: #4ade80; }
+    .metric-label { font-size: 0.9rem; opacity: 0.8; }
+    .section { background: white; border-radius: 12px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .section h2 { font-size: 1.5rem; margin-bottom: 16px; color: #1a1a1a; }
+    .pain-list { list-style: none; }
+    .pain-item { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid #eee; }
+    .pain-item:last-child { border-bottom: none; }
+    .pain-icon { width: 40px; height: 40px; background: #fef3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    .pain-text strong { display: block; margin-bottom: 4px; }
+    .pain-text span { font-size: 0.9rem; color: #666; }
+    .cta { text-align: center; padding: 40px 20px; background: #1a1a1a; border-radius: 12px; color: white; }
+    .cta h2 { font-size: 1.5rem; margin-bottom: 12px; }
+    .cta p { margin-bottom: 24px; opacity: 0.8; }
+    .btn { display: inline-block; background: #4ade80; color: #1a1a1a; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 1rem; text-decoration: none; transition: background 0.2s; }
+    .btn:hover { background: #22c55e; }
+    .form-section { background: #f8fafc; border: 1px solid #e2e8f0; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
+    .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .submit-btn { width: 100%; background: #1a1a1a; color: white; padding: 16px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .submit-btn:hover { background: #333; }
+    .footer { text-align: center; margin-top: 40px; color: #999; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>클릭워크</h1>
+      <p>행정·반복 업무에 하루 4시간을 뺏기는 1인 기업가를 위한<br>마찰 해소형 자동화 Micro-SaaS</p>
+      <div class="metric-bar">
+        <div class="metric"><div class="metric-value">4시간</div><div class="metric-label">하루 절약</div></div>
+        <div class="metric"><div class="metric-value">75%</div><div class="metric-label">오류 비용 감소</div></div>
+        <div class="metric"><div class="metric-value">₩0</div><div class="metric-label">초기 도입 비용</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>당신도 이 3가지 관행에 갇혀 있습니까?</h2>
+      <ul class="pain-list">
+        <li class="pain-item">
+          <div class="pain-icon">📋</div>
+          <div class="pain-text">
+            <strong>수동 데이터 입력 및 이중 기록</strong>
+            <span>거래처·영수증·세무 신고를 각각 별도 시스템에 입력 — 하루 1.5시간 중복 노동, 오류율 23%</span>
+          </div>
+        </li>
+        <li class="pain-item">
+          <div class="pain-icon">💬</div>
+          <div class="pain-text">
+            <strong>비효율적인 이메일·메신저 활용</strong>
+            <span>불필요한 회신 루프, 검색 불가능한 기록 — 하루 47분 메신저 관리에 소모</span>
+          </div>
+        </li>
+        <li class="pain-item">
+          <div class="pain-icon">🔧</div>
+          <div class="pain-text">
+            <strong>도입은 됐으나 운영 미흡</strong>
+            <span>마케팅 자동화·RPA 도입 후 방치, 기능 80% 미사용 — '도입 자체'로 성과 간주</span>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="section form-section">
+      <h2>3문항 진단: 내 상황은 얼마나 심각한가?</h2>
+      <p style="margin-bottom: 20px; color: #666;">아래 질문에 해당하는 항목을 선택해 주세요. 결과는 즉시 확인 가능합니다.</p>
+      <form id="pain-form" action="https://form.naver.com/your-form-id" method="POST" target="_blank">
+        <div class="form-group">
+          <label>1. 주당 행정·반복 업무에 할애하는 시간은?</label>
+          <select name="q1" required>
+            <option value="">선택하세요</option>
+            <option value="under5">5시간 미만</option>
+            <option value="5-10">5~10시간</option>
+            <option value="10-20">10~20시간</option>
+            <option value="over20">20시간 이상</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>2. 현재 사용 중인 툴 기능 활용도는?</label>
+          <select name="q2" required>
+            <option value="">선택하세요</option>
+            <option value="under20">20% 미만 (도입 후 방치)</option>
+            <option value="20-50">20~50%</option>
+            <option value="50-80">50~80%</option>
+            <option value="over80">80% 이상 (완전 활용)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>3. 데이터가 2개 이상 시스템에 중복 입력되는가?</label>
+          <select name="q3" required>
+            <option value="">선택하세요</option>
+            <option value="always">항상 (매일 발생)</option>
+            <option value="often">자주 (주 2~3회)</option>
+            <option value="sometimes">가끔 (주 1회 이하)</option>
+            <option value="never">전혀 없음</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>4. 연락받을 이메일 또는 연락처 (선택)</label>
+          <input type="email" name="contact" placeholder="결과 리포트 수신용" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;">
+        </div>
+        <button type="submit" class="submit-btn">진단 결과 받아보기</button>
+      </form>
+    </div>
+
+    <div class="section">
+      <h2>클릭워크가 해결하는 방식</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:16px;">
+        <div style="padding:20px;background:#f0fdf4;border-radius:12px;border:1px solid #bbf7d0;">
+          <strong style="color:#166534;">자동 데이터 입력</strong>
+          <p style="margin-top:8px;font-size:0.9rem;color:#166534;">구글 시트·노션·엑셀 연동 — 한 번 입력으로 모든 시스템 동기화</p>
+        </div>
+        <div style="padding:20px;background:#eff6ff;border-radius:12px;border:1px solid #bfdbfe;">
+          <strong style="color:#1e40af;">이메일·메신저 정리</strong>
+          <p style="margin-top:8px;font-size:0.9rem;color:#1e40af;">필수 회신만 필터링, 검색 가능한 로그 자동 저장</p>
+        </div>
+        <div style="padding:20px;background:#faf5ff;border-radius:12px;border:1px solid #e9d5ff;">
+          <strong style="color:#7c3aed;">툴 운영 최적화</strong>
+          <p style="margin-top:8px;font-size:0.9rem;color:#7c3aed;">기존 도입 툴 기능 100% 활용하도록 워크플로우 재설계</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta">
+      <h2>베타 테스터 3명 모집 중 (선착순)</h2>
+      <p>첫 달 ₩0, 사용 후 만족 시 월 ₩30,000부터 전환</p>
+      <a href="#" class="btn">베타 신청하기</a>
+    </div>
+
+    <div class="footer">
+      <p>클릭워크 — 1인 기업 자동화 마찰 해소 프로젝트 · 베타 운영 중</p>
+    </div>
+  </div>
+</body>
+</html>
