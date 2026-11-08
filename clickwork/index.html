@@ -79,8 +79,8 @@
 
     <div class="section form-section">
       <h2>3문항 진단: 내 상황은 얼마나 심각한가?</h2>
-      <p style="margin-bottom: 20px; color: #666;">아래 질문에 해당하는 항목을 선택해 주세요. 결과는 즉시 확인 가능합니다.</p>
-      <form id="pain-form" action="https://form.naver.com/your-form-id" method="POST" target="_blank">
+      <p style="margin-bottom: 20px; color: #666;">아래 3문항을 선택해 주세요. 담당자가 24시간 내 진단 결과를 회신합니다.</p>
+      <form id="pain-form" onsubmit="return sendInquiry(event)">
         <div class="form-group">
           <label>1. 주당 행정·반복 업무에 할애하는 시간은?</label>
           <select name="q1" required>
@@ -115,7 +115,7 @@
           <label>4. 연락받을 이메일 또는 연락처 (선택)</label>
           <input type="email" name="contact" placeholder="결과 리포트 수신용" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;">
         </div>
-        <button type="submit" class="submit-btn">진단 결과 받아보기</button>
+        <button type="submit" class="submit-btn">진단 신청 보내기</button>
       </form>
     </div>
 
@@ -140,12 +140,28 @@
     <div class="cta">
       <h2>베타 테스터 3명 모집 중 (선착순)</h2>
       <p>첫 달 ₩0, 사용 후 만족 시 월 ₩30,000부터 전환</p>
-      <a href="#" class="btn">베타 신청하기</a>
+      <a href="mailto:10jo.studio@gmail.com?subject=%ED%81%B4%EB%A6%AD%EC%9B%8C%ED%81%AC%20%EB%B2%A0%ED%83%80%20%EC%8B%A0%EC%B2%AD" class="btn">베타 신청하기</a>
     </div>
 
     <div class="footer">
       <p>클릭워크 — 1인 기업 자동화 마찰 해소 프로젝트 · 베타 운영 중</p>
     </div>
   </div>
+<script>
+function sendInquiry(e){
+  e.preventDefault();
+  var f = e.target;
+  function txt(sel){ return f[sel].options[f[sel].selectedIndex].text; }
+  var subject = encodeURIComponent('클릭워크 3문항 진단 신청');
+  var body = encodeURIComponent(
+    '1) 주당 행정·반복 업무 시간: ' + txt('q1') + '\n' +
+    '2) 툴 기능 활용도: ' + txt('q2') + '\n' +
+    '3) 데이터 중복 입력 여부: ' + txt('q3') + '\n' +
+    '4) 회신 연락처: ' + (f.contact.value || '(미입력)') + '\n'
+  );
+  window.location.href = 'mailto:10jo.studio@gmail.com?subject=' + subject + '&body=' + body;
+  return false;
+}
+</script>
 </body>
 </html>
